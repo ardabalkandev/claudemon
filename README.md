@@ -19,16 +19,9 @@ absolute reset time in the limit's own timezone.
 
 ## Screenshots
 
-Screenshots are not yet included in this repository. To add them, drop images
-into a `docs/` folder and reference them here, for example:
-
-```markdown
-![Menu bar panel](docs/menu-bar.png)
-![Floating window](docs/floating-window.png)
-![Widget](docs/widget.png)
-```
-
-_(The `docs/` folder does not exist yet — create it when adding images.)_
+| Menu bar panel | Floating window |
+| :---: | :---: |
+| ![Menu bar panel](docs/menubar.png) | ![Floating desktop window](docs/floating.png) |
 
 ## Requirements
 
