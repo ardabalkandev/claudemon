@@ -166,7 +166,7 @@ entitlements.
 
 ```bash
 swift build   # debug build of ClaudemonCore + the app
-swift test    # runs the unit test suite (currently 40 tests)
+swift test    # runs the unit test suite (currently 50 tests)
 ```
 
 ### XcodeGen (optional regeneration fallback)
