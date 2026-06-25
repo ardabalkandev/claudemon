@@ -7,6 +7,7 @@ struct MenuPanelView: View {
     @ObservedObject var store: UsageStore
     @ObservedObject var loginItem: LoginItemManager
     @ObservedObject var notifications: NotificationManager
+    @ObservedObject var updateChecker: UpdateChecker
 
     var body: some View {
         VStack(alignment: .leading, spacing: 14) {
@@ -265,6 +266,8 @@ struct MenuPanelView: View {
                 Spacer()
             }
 
+            updatesRow
+
             HStack {
                 Button {
                     store.refresh()
@@ -281,6 +284,63 @@ struct MenuPanelView: View {
                     Label("Quit", systemImage: "power")
                 }
             }
+        }
+    }
+
+    // MARK: - Updates
+
+    /// Notify-only "Check for Updates" affordance, rendered by checker state.
+    /// Calm, compact, and consistent with the footer's caption styling.
+    @ViewBuilder
+    private var updatesRow: some View {
+        switch updateChecker.state {
+        case .idle:
+            Button {
+                Task { await updateChecker.check() }
+            } label: {
+                Label("Check for Updates", systemImage: "arrow.down.circle")
+            }
+            .buttonStyle(.link)
+            .controlSize(.small)
+
+        case .checking:
+            HStack(spacing: 6) {
+                ProgressView().controlSize(.small)
+                Text("Checking…")
+                    .font(.caption2)
+                    .foregroundStyle(.secondary)
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+
+        case .upToDate(let current):
+            Text("You're on the latest version (\(current))")
+                .font(.caption2)
+                .foregroundStyle(.secondary)
+                .frame(maxWidth: .infinity, alignment: .leading)
+
+        case .updateAvailable(let latest, let url):
+            VStack(alignment: .leading, spacing: 6) {
+                HStack(spacing: 6) {
+                    Text("Update available: \(latest)")
+                        .font(.caption2)
+                        .foregroundStyle(.secondary)
+                    Link("Release notes", destination: url)
+                        .font(.caption2)
+                }
+                installCommand("brew upgrade --cask claudemon")
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+
+        case .failed:
+            // A failed check is transient (e.g. offline at launch). Offer a
+            // one-tap retry so the user isn't stuck until the next app launch.
+            Button {
+                Task { await updateChecker.check() }
+            } label: {
+                Label("Couldn't check — Retry", systemImage: "arrow.clockwise")
+            }
+            .buttonStyle(.link)
+            .controlSize(.small)
         }
     }
 }

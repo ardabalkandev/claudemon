@@ -10,10 +10,12 @@ struct ClaudemonApp: App {
     @StateObject private var store = ClaudemonAppState.shared.store
     @StateObject private var loginItem = ClaudemonAppState.shared.loginItem
     @StateObject private var notifications = ClaudemonAppState.shared.notifications
+    @StateObject private var updateChecker = ClaudemonAppState.shared.updateChecker
 
     var body: some Scene {
         MenuBarExtra {
-            MenuPanelView(store: store, loginItem: loginItem, notifications: notifications)
+            MenuPanelView(store: store, loginItem: loginItem,
+                          notifications: notifications, updateChecker: updateChecker)
         } label: {
             MenuBarLabel(store: store)
         }
@@ -29,6 +31,7 @@ final class ClaudemonAppState {
     let store = UsageStore()
     let loginItem = LoginItemManager()
     let notifications = NotificationManager.shared
+    let updateChecker = UpdateChecker()
     private init() {}
 }
 
@@ -78,6 +81,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCent
     private let store = ClaudemonAppState.shared.store
     private let loginItem = ClaudemonAppState.shared.loginItem
     private let notifications = ClaudemonAppState.shared.notifications
+    private let updateChecker = ClaudemonAppState.shared.updateChecker
     private var floatingController: FloatingPanelController?
 
     func applicationDidFinishLaunching(_ notification: Notification) {
@@ -99,6 +103,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCent
 
         // Begin polling (immediate refresh + 60s timer).
         store.start()
+
+        // Non-blocking, notify-only update check, throttled to once/day.
+        maybeCheckForUpdates()
 
         // Restore the floating widget if it was enabled last session.
         if store.floatingEnabled {
@@ -122,6 +129,26 @@ final class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCent
     @objc private func appDidBecomeActive() {
         loginItem.refreshStatus()
         notifications.refreshAuthorizationStatus()
+    }
+
+    /// Fire at most one automatic update check per day. Kept off the launch
+    /// path with a detached Task so it never delays the menu-bar appearing.
+    private func maybeCheckForUpdates() {
+        let key = "lastUpdateCheck"
+        let now = Date()
+        if let last = UserDefaults.standard.object(forKey: key) as? Date,
+           now.timeIntervalSince(last) < 24 * 60 * 60 {
+            return
+        }
+        // Capture the checker (not self) to avoid a retain cycle. Stamp the
+        // once-per-day throttle only AFTER a check that didn't fail, so a
+        // transient network failure on launch doesn't burn the day — the next
+        // launch will naturally retry.
+        Task { [updateChecker] in
+            await updateChecker.check()
+            if case .failed = updateChecker.state { return }
+            UserDefaults.standard.set(now, forKey: key)
+        }
     }
 
     // Show banners + play sound even when Claudemon is the active app.
