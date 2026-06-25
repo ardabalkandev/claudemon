@@ -10,7 +10,7 @@ struct FloatingWidgetView: View {
     /// Content sizes for each form, shared with `FloatingPanelController` so it
     /// can resize the hosting panel to match the rendered form.
     static let largeContentSize = CGSize(width: 210, height: 112)
-    static let miniContentSize = CGSize(width: 116, height: 116)
+    static let miniContentSize = CGSize(width: 88, height: 88)
 
     @ObservedObject var store: UsageStore
 
@@ -68,11 +68,11 @@ struct FloatingWidgetView: View {
     /// A single, larger session ring centered in a compact rounded-square panel.
     /// Reuses the exact ring rendering/colors of the large form.
     private var miniBody: some View {
-        sessionRingView(diameter: 88, lineWidth: 9, percentFont: 24, labelFont: 10)
+        sessionRingView(diameter: 62, lineWidth: 7, percentFont: 18, labelFont: 8)
             .frame(width: Self.miniContentSize.width, height: Self.miniContentSize.height)
-            .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 18))
+            .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 16))
             .overlay(
-                RoundedRectangle(cornerRadius: 18)
+                RoundedRectangle(cornerRadius: 16)
                     .strokeBorder(Color.primary.opacity(0.08))
             )
     }

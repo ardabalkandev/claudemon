@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		0387DB6FCAD5A88921F8302A /* SemVerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 68F1D217E223D0B312E2492B /* SemVerTests.swift */; };
 		1511381E21E3C082506E7A9F /* NotificationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4BA0DC0F49FF3C4CEA517A2D /* NotificationManager.swift */; };
 		1635FFB92CEDEC1A22B80EB2 /* MenuPanelView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0DBF212EF59D7166397DFC88 /* MenuPanelView.swift */; };
 		21EBDFE85398DE4308B9FF96 /* UsageFetcher.swift in Sources */ = {isa = PBXBuildFile; fileRef = DB47AB3E4F9C84964CF08A1C /* UsageFetcher.swift */; };
@@ -33,6 +34,7 @@
 		AE3328B7A6FEAFF8D2567DD7 /* UsageParserTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5434A37C3C294B8E17E8858C /* UsageParserTests.swift */; };
 		BE4F705A4355F0D6C781BF9A /* ClaudeLocatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E544597FE1863773A70A3C32 /* ClaudeLocatorTests.swift */; };
 		C04B135775B1D58B6B4D975E /* UsageBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 52F2BBCB605403A90B1AA294 /* UsageBar.swift */; };
+		C9FCFA4309528CD401D4382E /* UpdateChecker.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3568ADC9444278311FBB8F6 /* UpdateChecker.swift */; };
 		CB40CBFBF3C6D82BF9DE6809 /* ClaudemonWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = C314750AB74E99C597003C1B /* ClaudemonWidget.swift */; };
 		D10D9D645C71BA062A9CD09C /* ClaudemonCore.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 00E97527734F51FEE1410D97 /* ClaudemonCore.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		D2D0F2A1B492A02A0A2314E1 /* UsageFormattingResetTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 432403682D9AA489409DBD20 /* UsageFormattingResetTests.swift */; };
@@ -130,10 +132,12 @@
 		4BA0DC0F49FF3C4CEA517A2D /* NotificationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationManager.swift; sourceTree = "<group>"; };
 		52F2BBCB605403A90B1AA294 /* UsageBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UsageBar.swift; sourceTree = "<group>"; };
 		5434A37C3C294B8E17E8858C /* UsageParserTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UsageParserTests.swift; sourceTree = "<group>"; };
+		68F1D217E223D0B312E2492B /* SemVerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SemVerTests.swift; sourceTree = "<group>"; };
 		7F3F54CB4C32D79ACBA7DFD0 /* ClaudemonApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClaudemonApp.swift; sourceTree = "<group>"; };
 		847124D566146A7AFD34F4CC /* LoginItemManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginItemManager.swift; sourceTree = "<group>"; };
 		965C3830F9C5D87C5C9DC164 /* ClaudeDiagnostics.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClaudeDiagnostics.swift; sourceTree = "<group>"; };
 		982B07D823985DE79856030D /* ClaudemonTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ClaudemonTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		A3568ADC9444278311FBB8F6 /* UpdateChecker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpdateChecker.swift; sourceTree = "<group>"; };
 		AC5B6E54258E0E5C5A1B60FD /* UsageColor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UsageColor.swift; sourceTree = "<group>"; };
 		B1EC1E9A6A67C1BF90DCE77E /* UsageStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UsageStore.swift; sourceTree = "<group>"; };
 		B4186E902F1E159FEEEBEB53 /* SharedUsageCacheTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharedUsageCacheTests.swift; sourceTree = "<group>"; };
@@ -187,6 +191,7 @@
 				847124D566146A7AFD34F4CC /* LoginItemManager.swift */,
 				0DBF212EF59D7166397DFC88 /* MenuPanelView.swift */,
 				4BA0DC0F49FF3C4CEA517A2D /* NotificationManager.swift */,
+				A3568ADC9444278311FBB8F6 /* UpdateChecker.swift */,
 				DB47AB3E4F9C84964CF08A1C /* UsageFetcher.swift */,
 				B1EC1E9A6A67C1BF90DCE77E /* UsageStore.swift */,
 			);
@@ -198,6 +203,7 @@
 			children = (
 				10BA72909B03002307D8137F /* ClaudeDiagnosticsTests.swift */,
 				E544597FE1863773A70A3C32 /* ClaudeLocatorTests.swift */,
+				68F1D217E223D0B312E2492B /* SemVerTests.swift */,
 				B4186E902F1E159FEEEBEB53 /* SharedUsageCacheTests.swift */,
 				DE690520FCD43E0269FFA600 /* UsageAlertPolicyTests.swift */,
 				432403682D9AA489409DBD20 /* UsageFormattingResetTests.swift */,
@@ -433,6 +439,7 @@
 				9CA7305FC52606451414A645 /* LoginItemManager.swift in Sources */,
 				1635FFB92CEDEC1A22B80EB2 /* MenuPanelView.swift in Sources */,
 				1511381E21E3C082506E7A9F /* NotificationManager.swift in Sources */,
+				C9FCFA4309528CD401D4382E /* UpdateChecker.swift in Sources */,
 				21EBDFE85398DE4308B9FF96 /* UsageFetcher.swift in Sources */,
 				A54F6BB723B7CC55776B02CE /* UsageStore.swift in Sources */,
 			);
@@ -468,6 +475,7 @@
 			files = (
 				A4AECE324401ACDC6757EEFA /* ClaudeDiagnosticsTests.swift in Sources */,
 				BE4F705A4355F0D6C781BF9A /* ClaudeLocatorTests.swift in Sources */,
+				0387DB6FCAD5A88921F8302A /* SemVerTests.swift in Sources */,
 				6CCEC5511601D079681ADD75 /* SharedUsageCacheTests.swift in Sources */,
 				D34ECAD85C71C3A83192D917 /* UsageAlertPolicyTests.swift in Sources */,
 				D2D0F2A1B492A02A0A2314E1 /* UsageFormattingResetTests.swift in Sources */,
@@ -578,7 +586,7 @@
 				CODE_SIGN_IDENTITY = "";
 				CODE_SIGN_STYLE = Manual;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 4;
+				CURRENT_PROJECT_VERSION = 6;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				DEVELOPMENT_TEAM = 3QKMW9HR59;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
@@ -598,7 +606,7 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				MACOSX_DEPLOYMENT_TARGET = 14.0;
-				MARKETING_VERSION = 1.1.2;
+				MARKETING_VERSION = 1.2.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
@@ -663,7 +671,7 @@
 				CODE_SIGN_IDENTITY = "";
 				CODE_SIGN_STYLE = Manual;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 4;
+				CURRENT_PROJECT_VERSION = 6;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = 3QKMW9HR59;
 				ENABLE_NS_ASSERTIONS = NO;
@@ -677,7 +685,7 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				MACOSX_DEPLOYMENT_TARGET = 14.0;
-				MARKETING_VERSION = 1.1.2;
+				MARKETING_VERSION = 1.2.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
