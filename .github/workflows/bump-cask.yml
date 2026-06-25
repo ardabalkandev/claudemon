@@ -1,0 +1,86 @@
+name: Bump Homebrew Cask
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Release tag to bump (e.g. v1.1.3)"
+        required: true
+
+permissions:
+  contents: read
+
+jobs:
+  bump-cask:
+    runs-on: macos-latest
+    steps:
+      - name: Resolve tag and version
+        id: ver
+        env:
+          RAW_TAG: ${{ github.event.release.tag_name || github.event.inputs.tag }}
+        run: |
+          TAG="$RAW_TAG"
+          VERSION="${TAG#v}"
+          echo "tag=$TAG"         >> "$GITHUB_OUTPUT"
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+
+      - name: Download DMG asset (retry for late uploads)
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: ${{ steps.ver.outputs.tag }}
+          REPO: ${{ github.repository }}
+        run: |
+          for i in 1 2 3 4 5; do
+            if gh release download "$TAG" \
+                 --repo "$REPO" \
+                 --pattern "Claudemon.dmg" --dir . --clobber; then
+              break
+            fi
+            echo "asset not ready, retry $i"; sleep 15
+          done
+          test -f Claudemon.dmg
+
+      - name: Compute sha256
+        id: sum
+        run: echo "sha256=$(shasum -a 256 Claudemon.dmg | awk '{print $1}')" >> "$GITHUB_OUTPUT"
+
+      - name: Checkout tap
+        uses: actions/checkout@v4
+        with:
+          repository: ardabalkandev/homebrew-tap
+          token: ${{ secrets.TAP_REPO_TOKEN }}
+          path: tap
+
+      - name: Rewrite cask version + sha256
+        env:
+          VERSION: ${{ steps.ver.outputs.version }}
+          SHA256: ${{ steps.sum.outputs.sha256 }}
+        run: |
+          if ! printf '%s' "$VERSION" | grep -Eq '^[0-9]+(\.[0-9]+)*$'; then
+            echo "Invalid VERSION: '$VERSION' (expected digits separated by dots, e.g. 1.1.3)" >&2
+            exit 1
+          fi
+          if ! printf '%s' "$SHA256" | grep -Eq '^[0-9a-f]{64}$'; then
+            echo "Invalid SHA256: '$SHA256' (expected 64 lowercase hex chars)" >&2
+            exit 1
+          fi
+          CASK=tap/Casks/claudemon.rb
+          sed -i.bak -E 's/^( *version ).*/\1"'"$VERSION"'"/' "$CASK"
+          sed -i.bak -E 's/^( *sha256 ).*/\1"'"$SHA256"'"/'   "$CASK"
+          rm -f "$CASK.bak"
+
+      - name: Commit and push if changed
+        working-directory: tap
+        env:
+          VERSION: ${{ steps.ver.outputs.version }}
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          if git diff --quiet; then
+            echo "No change — already at this version/sha. Idempotent no-op."
+            exit 0
+          fi
+          git add Casks/claudemon.rb
+          git commit -m "claudemon $VERSION"
+          git push
