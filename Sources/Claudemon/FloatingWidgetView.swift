@@ -143,11 +143,15 @@ struct FloatingWidgetView: View {
                 Text(footerTimeText(prefix: "last update "))
                     .font(.system(size: 9))
                     .foregroundStyle(.orange)
+                    .lineLimit(1)
+                    .truncationMode(.tail)
             } else {
                 // Fresh OR stale-render (no new limit lines this cycle): calm.
                 Text(footerTimeText(prefix: "updated "))
                     .font(.system(size: 9))
                     .foregroundStyle(.secondary)
+                    .lineLimit(1)
+                    .truncationMode(.tail)
             }
             Spacer(minLength: 0)
         }
@@ -156,14 +160,26 @@ struct FloatingWidgetView: View {
 
     private func footerTimeText(prefix: String) -> String {
         guard let updated = store.lastUpdated else { return prefix.trimmingCharacters(in: .whitespaces) }
+        let resetSuffix = sessionResetSuffix
         let staleHint = (store.dataAge ?? 0) > 10 * 60 ? " · stale" : ""
-        return prefix + UsageFormatting.shortClockString(updated) + staleHint
+        return prefix + UsageFormatting.shortClockString(updated) + resetSuffix + staleHint
+    }
+
+    /// " · resets at HH:mm" in the session metric's own timezone, or "" when
+    /// no session reset date is available.
+    private var sessionResetSuffix: String {
+        guard let session = store.lastGoodReport?.session, let resetDate = session.resetDate else { return "" }
+        return " · resets at " + UsageFormatting.shortClockString(resetDate, timeZone: session.timezone)
     }
 
     private var accessibilitySummary: String {
         if store.isNotInstalled { return "Claude Code isn't installed. Install the CLI to see usage." }
         if store.isNotSignedIn { return "Sign in to Claude Code. Run claude then slash login." }
         guard hasData else { return store.errorMessage ?? "Loading usage" }
-        return "Session \(sessionPercent) percent, Week \(weekPercent) percent, Sonnet \(sonnetPercent) percent"
+        var summary = "Session \(sessionPercent) percent, Week \(weekPercent) percent, Sonnet \(sonnetPercent) percent"
+        if let session = store.lastGoodReport?.session, let resetDate = session.resetDate {
+            summary += ", session resets at \(UsageFormatting.shortClockString(resetDate, timeZone: session.timezone))"
+        }
+        return summary
     }
 }

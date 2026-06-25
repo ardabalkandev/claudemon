@@ -114,8 +114,16 @@ public enum UsageFormatting {
     /// "HH:mm" wall-clock string (local timezone) used for the widget's
     /// "as of" line.
     public static func shortClockString(_ date: Date) -> String {
+        shortClockString(date, timeZone: nil)
+    }
+
+    /// "HH:mm" wall-clock string in the supplied timezone (falls back to the
+    /// current timezone when nil). Used for the widget's "resets at" suffix so
+    /// the time matches the panel's reset basis (the metric's own timezone).
+    public static func shortClockString(_ date: Date, timeZone: TimeZone?) -> String {
         let formatter = DateFormatter()
         formatter.locale = Locale(identifier: "en_US")
+        formatter.timeZone = timeZone ?? TimeZone.current
         formatter.dateFormat = "HH:mm"
         return formatter.string(from: date)
     }
