@@ -72,6 +72,12 @@ and installs the same Developer ID signed + notarized app. Update later with
 `brew upgrade --cask claudemon`, or remove it completely with
 `brew uninstall --zap --cask claudemon`.
 
+> **Note:** From Homebrew 5.2.0/6.0.0 onward (whichever comes first), third-party
+> taps require explicit trust. The fully-qualified command above is unaffected and
+> keeps working with no extra steps. If you prefer the `brew tap ardabalkandev/tap`
+> + short-name workflow, run `brew trust --cask ardabalkandev/tap/claudemon` first.
+> See [Tap Trust](https://docs.brew.sh/Tap-Trust) for details.
+
 ### Manual (DMG)
 
 1. Download `Claudemon.dmg` from the
