@@ -143,6 +143,10 @@ final class UsageStore: ObservableObject {
         lastUpdated = report.capturedAt
         isRefreshing = false
 
+        // Fire usage-limit alerts on genuinely fresh data only (never on
+        // stale-render or error states, which reuse last-good data).
+        NotificationManager.shared.evaluate(report)
+
         // Bridge to the widget via the App Group cache, then reload the widget
         // timeline only when something meaningfully changed or the rate-limit
         // window has elapsed.

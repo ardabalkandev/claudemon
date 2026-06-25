@@ -1,10 +1,12 @@
 import SwiftUI
+import AppKit
 import ClaudemonCore
 
 /// Rich panel shown when the menu-bar item is clicked.
 struct MenuPanelView: View {
     @ObservedObject var store: UsageStore
     @ObservedObject var loginItem: LoginItemManager
+    @ObservedObject var notifications: NotificationManager
 
     var body: some View {
         VStack(alignment: .leading, spacing: 14) {
@@ -146,6 +148,59 @@ struct MenuPanelView: View {
         .accessibilityElement(children: .combine)
     }
 
+    // MARK: - Notification settings
+
+    @ViewBuilder
+    private var notificationSettings: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Toggle(isOn: $notifications.isEnabled) {
+                Label("Usage alerts", systemImage: "bell")
+            }
+            .toggleStyle(.switch)
+            .controlSize(.small)
+
+            if notifications.isEnabled {
+                VStack(alignment: .leading, spacing: 4) {
+                    ForEach(NotificationManager.Threshold.allCases, id: \.rawValue) { threshold in
+                        Toggle(threshold.settingsLabel, isOn: Binding(
+                            get: { notifications.isThresholdEnabled(threshold) },
+                            set: { notifications.setThreshold(threshold, enabled: $0) }
+                        ))
+                        .toggleStyle(.checkbox)
+                        .controlSize(.small)
+                        .font(.caption)
+                    }
+
+                    if notifications.permissionDenied {
+                        Button {
+                            openNotificationSettings()
+                        } label: {
+                            Label("Enable notifications in System Settings…",
+                                  systemImage: "exclamationmark.triangle.fill")
+                                .font(.caption2)
+                        }
+                        .buttonStyle(.link)
+                        .controlSize(.small)
+                        .help("macOS is blocking Claudemon's notifications. Allow them in System Settings > Notifications.")
+                    } else {
+                        Text("Alerts fire once per quota window for each tracked limit.")
+                            .font(.caption2)
+                            .foregroundStyle(.secondary)
+                            .fixedSize(horizontal: false, vertical: true)
+                    }
+                }
+                .padding(.leading, 22)
+                .transition(.opacity)
+            }
+        }
+    }
+
+    private func openNotificationSettings() {
+        if let url = URL(string: "x-apple.systempreferences:com.apple.Notifications-Settings.extension") {
+            NSWorkspace.shared.open(url)
+        }
+    }
+
     // MARK: - Footer
 
     private var footer: some View {
@@ -161,6 +216,8 @@ struct MenuPanelView: View {
             }
             .toggleStyle(.switch)
             .controlSize(.small)
+
+            notificationSettings
 
             if loginItem.requiresApproval {
                 Button {

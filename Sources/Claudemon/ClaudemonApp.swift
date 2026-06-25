@@ -1,5 +1,6 @@
 import SwiftUI
 import AppKit
+import UserNotifications
 
 @main
 struct ClaudemonApp: App {
@@ -8,10 +9,11 @@ struct ClaudemonApp: App {
     // The single source of truth, owned by the app and shared with the delegate.
     @StateObject private var store = ClaudemonAppState.shared.store
     @StateObject private var loginItem = ClaudemonAppState.shared.loginItem
+    @StateObject private var notifications = ClaudemonAppState.shared.notifications
 
     var body: some Scene {
         MenuBarExtra {
-            MenuPanelView(store: store, loginItem: loginItem)
+            MenuPanelView(store: store, loginItem: loginItem, notifications: notifications)
         } label: {
             MenuBarLabel(store: store)
         }
@@ -26,6 +28,7 @@ final class ClaudemonAppState {
     static let shared = ClaudemonAppState()
     let store = UsageStore()
     let loginItem = LoginItemManager()
+    let notifications = NotificationManager.shared
     private init() {}
 }
 
@@ -71,14 +74,20 @@ struct MenuBarLabel: View {
 
 /// AppDelegate handles activation policy (no Dock icon) and the floating panel.
 @MainActor
-final class AppDelegate: NSObject, NSApplicationDelegate {
+final class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDelegate {
     private let store = ClaudemonAppState.shared.store
     private let loginItem = ClaudemonAppState.shared.loginItem
+    private let notifications = ClaudemonAppState.shared.notifications
     private var floatingController: FloatingPanelController?
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         // Pure menu-bar agent: no Dock icon, no app menu.
         NSApplication.shared.setActivationPolicy(.accessory)
+
+        // Present alert banners even while this accessory app is "active", and
+        // re-sync the permission state in case it changed in System Settings.
+        UNUserNotificationCenter.current().delegate = self
+        notifications.refreshAuthorizationStatus()
 
         let controller = FloatingPanelController(store: store)
         floatingController = controller
@@ -112,6 +121,16 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
     @objc private func appDidBecomeActive() {
         loginItem.refreshStatus()
+        notifications.refreshAuthorizationStatus()
+    }
+
+    // Show banners + play sound even when Claudemon is the active app.
+    nonisolated func userNotificationCenter(
+        _ center: UNUserNotificationCenter,
+        willPresent notification: UNNotification,
+        withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void
+    ) {
+        completionHandler([.banner, .list, .sound])
     }
 
     @objc private func systemWillSleep() {

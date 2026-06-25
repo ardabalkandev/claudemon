@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		1511381E21E3C082506E7A9F /* NotificationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4BA0DC0F49FF3C4CEA517A2D /* NotificationManager.swift */; };
 		1635FFB92CEDEC1A22B80EB2 /* MenuPanelView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0DBF212EF59D7166397DFC88 /* MenuPanelView.swift */; };
 		21EBDFE85398DE4308B9FF96 /* UsageFetcher.swift in Sources */ = {isa = PBXBuildFile; fileRef = DB47AB3E4F9C84964CF08A1C /* UsageFetcher.swift */; };
 		35B06E0D881C37EC7473EF27 /* ClaudemonWidget.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 247335CE4095196774DE3D4F /* ClaudemonWidget.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
@@ -22,6 +23,7 @@
 		88AD654EB146B1280BF93630 /* UsageParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8973D3D7817FB19661DB49D /* UsageParser.swift */; };
 		957B56F2000BC6DD47A8B034 /* ClaudemonCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 00E97527734F51FEE1410D97 /* ClaudemonCore.framework */; };
 		9CA7305FC52606451414A645 /* LoginItemManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 847124D566146A7AFD34F4CC /* LoginItemManager.swift */; };
+		9D2D7E57983E01BE1FEAD5A4 /* UsageAlertPolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 26FF770B8BCB25AFCD46EB7D /* UsageAlertPolicy.swift */; };
 		A10C9555CF2808A9F8CCD9A9 /* ClaudemonWidgetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 459E3693DDFAFD1B509D8287 /* ClaudemonWidgetView.swift */; };
 		A29F73F8818B522AA2204F56 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = BEA929A31712388FE3F90DE4 /* Assets.xcassets */; };
 		A4AECE324401ACDC6757EEFA /* ClaudeDiagnosticsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 10BA72909B03002307D8137F /* ClaudeDiagnosticsTests.swift */; };
@@ -32,6 +34,7 @@
 		C04B135775B1D58B6B4D975E /* UsageBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 52F2BBCB605403A90B1AA294 /* UsageBar.swift */; };
 		CB40CBFBF3C6D82BF9DE6809 /* ClaudemonWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = C314750AB74E99C597003C1B /* ClaudemonWidget.swift */; };
 		D10D9D645C71BA062A9CD09C /* ClaudemonCore.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 00E97527734F51FEE1410D97 /* ClaudemonCore.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		D34ECAD85C71C3A83192D917 /* UsageAlertPolicyTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE690520FCD43E0269FFA600 /* UsageAlertPolicyTests.swift */; };
 		DA0B8D8E9E89DE1DB5C68FA3 /* FloatingPanelController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2AB740EC59C112CA31BEBB29 /* FloatingPanelController.swift */; };
 		E3B71830AFCDC88066AAD8EF /* FloatingWidgetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 19B43561FC880C2C15DFA4F8 /* FloatingWidgetView.swift */; };
 		EC10C7A886DF2FCB98F52FF6 /* UsageModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF06A3AA6CCD2F4747163C37 /* UsageModels.swift */; };
@@ -110,8 +113,10 @@
 		10BA72909B03002307D8137F /* ClaudeDiagnosticsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClaudeDiagnosticsTests.swift; sourceTree = "<group>"; };
 		19B43561FC880C2C15DFA4F8 /* FloatingWidgetView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FloatingWidgetView.swift; sourceTree = "<group>"; };
 		247335CE4095196774DE3D4F /* ClaudemonWidget.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = ClaudemonWidget.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		26FF770B8BCB25AFCD46EB7D /* UsageAlertPolicy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UsageAlertPolicy.swift; sourceTree = "<group>"; };
 		2AB740EC59C112CA31BEBB29 /* FloatingPanelController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FloatingPanelController.swift; sourceTree = "<group>"; };
 		459E3693DDFAFD1B509D8287 /* ClaudemonWidgetView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClaudemonWidgetView.swift; sourceTree = "<group>"; };
+		4BA0DC0F49FF3C4CEA517A2D /* NotificationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationManager.swift; sourceTree = "<group>"; };
 		52F2BBCB605403A90B1AA294 /* UsageBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UsageBar.swift; sourceTree = "<group>"; };
 		5434A37C3C294B8E17E8858C /* UsageParserTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UsageParserTests.swift; sourceTree = "<group>"; };
 		7F3F54CB4C32D79ACBA7DFD0 /* ClaudemonApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClaudemonApp.swift; sourceTree = "<group>"; };
@@ -127,6 +132,7 @@
 		C314750AB74E99C597003C1B /* ClaudemonWidget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClaudemonWidget.swift; sourceTree = "<group>"; };
 		D8973D3D7817FB19661DB49D /* UsageParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UsageParser.swift; sourceTree = "<group>"; };
 		DB47AB3E4F9C84964CF08A1C /* UsageFetcher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UsageFetcher.swift; sourceTree = "<group>"; };
+		DE690520FCD43E0269FFA600 /* UsageAlertPolicyTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UsageAlertPolicyTests.swift; sourceTree = "<group>"; };
 		E332EBF7F9EDEF765937B6F7 /* UsageModelsCodableTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UsageModelsCodableTests.swift; sourceTree = "<group>"; };
 		E544597FE1863773A70A3C32 /* ClaudeLocatorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClaudeLocatorTests.swift; sourceTree = "<group>"; };
 		E6DB494AB884C4E5F2D33D99 /* SharedUsageCache.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharedUsageCache.swift; sourceTree = "<group>"; };
@@ -169,6 +175,7 @@
 				19B43561FC880C2C15DFA4F8 /* FloatingWidgetView.swift */,
 				847124D566146A7AFD34F4CC /* LoginItemManager.swift */,
 				0DBF212EF59D7166397DFC88 /* MenuPanelView.swift */,
+				4BA0DC0F49FF3C4CEA517A2D /* NotificationManager.swift */,
 				DB47AB3E4F9C84964CF08A1C /* UsageFetcher.swift */,
 				B1EC1E9A6A67C1BF90DCE77E /* UsageStore.swift */,
 			);
@@ -181,6 +188,7 @@
 				10BA72909B03002307D8137F /* ClaudeDiagnosticsTests.swift */,
 				E544597FE1863773A70A3C32 /* ClaudeLocatorTests.swift */,
 				B4186E902F1E159FEEEBEB53 /* SharedUsageCacheTests.swift */,
+				DE690520FCD43E0269FFA600 /* UsageAlertPolicyTests.swift */,
 				E332EBF7F9EDEF765937B6F7 /* UsageModelsCodableTests.swift */,
 				5434A37C3C294B8E17E8858C /* UsageParserTests.swift */,
 			);
@@ -213,6 +221,7 @@
 				965C3830F9C5D87C5C9DC164 /* ClaudeDiagnostics.swift */,
 				BAEC3854EB7ECCC35B5C1D5A /* ClaudeLocator.swift */,
 				E6DB494AB884C4E5F2D33D99 /* SharedUsageCache.swift */,
+				26FF770B8BCB25AFCD46EB7D /* UsageAlertPolicy.swift */,
 				52F2BBCB605403A90B1AA294 /* UsageBar.swift */,
 				AC5B6E54258E0E5C5A1B60FD /* UsageColor.swift */,
 				EF06A3AA6CCD2F4747163C37 /* UsageModels.swift */,
@@ -409,6 +418,7 @@
 				E3B71830AFCDC88066AAD8EF /* FloatingWidgetView.swift in Sources */,
 				9CA7305FC52606451414A645 /* LoginItemManager.swift in Sources */,
 				1635FFB92CEDEC1A22B80EB2 /* MenuPanelView.swift in Sources */,
+				1511381E21E3C082506E7A9F /* NotificationManager.swift in Sources */,
 				21EBDFE85398DE4308B9FF96 /* UsageFetcher.swift in Sources */,
 				A54F6BB723B7CC55776B02CE /* UsageStore.swift in Sources */,
 			);
@@ -421,6 +431,7 @@
 				88668AB2E6BEA21C2669F10E /* ClaudeDiagnostics.swift in Sources */,
 				A4F83B1FB601874BB45EF52E /* ClaudeLocator.swift in Sources */,
 				697687BFA5427FCCB5F9ED64 /* SharedUsageCache.swift in Sources */,
+				9D2D7E57983E01BE1FEAD5A4 /* UsageAlertPolicy.swift in Sources */,
 				C04B135775B1D58B6B4D975E /* UsageBar.swift in Sources */,
 				661A2F3726290E9A6DFEEB3C /* UsageColor.swift in Sources */,
 				EC10C7A886DF2FCB98F52FF6 /* UsageModels.swift in Sources */,
@@ -444,6 +455,7 @@
 				A4AECE324401ACDC6757EEFA /* ClaudeDiagnosticsTests.swift in Sources */,
 				BE4F705A4355F0D6C781BF9A /* ClaudeLocatorTests.swift in Sources */,
 				6CCEC5511601D079681ADD75 /* SharedUsageCacheTests.swift in Sources */,
+				D34ECAD85C71C3A83192D917 /* UsageAlertPolicyTests.swift in Sources */,
 				58759BD7F561EDDBF4F16A87 /* UsageModelsCodableTests.swift in Sources */,
 				AE3328B7A6FEAFF8D2567DD7 /* UsageParserTests.swift in Sources */,
 			);
