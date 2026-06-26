@@ -138,9 +138,12 @@ keeps polling. Polling pauses on system sleep and resumes on wake.
 
 WidgetKit extensions are sandboxed and cannot run `claude` or hit the network.
 Instead, the app writes each successful poll to a JSON cache in the shared App
-Group container (`group.com.claudemon.app`), and the widget reads **only** from
-that cache. Both targets carry the App Group entitlement
+Group container (`3QKMW9HR59.group.com.claudemon.app`), and the widget reads
+**only** from that cache. Both targets carry the App Group entitlement
 (`Support/Claudemon.entitlements`, `Support/ClaudemonWidget.entitlements`).
+Because the main app is non-sandboxed, this data bridge only works in the
+signed/notarized build — an ad-hoc local build cannot share the App Group
+container, so the widget will stay on its "Open Claudemon" prompt there.
 
 The widget is **best-effort fresh, not per-minute.** Apple throttles widget
 timeline reloads, so Claudemon rate-limits them and the widget's own timeline

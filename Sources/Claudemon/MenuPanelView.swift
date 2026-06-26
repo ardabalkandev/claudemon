@@ -225,6 +225,12 @@ struct MenuPanelView: View {
             }
             .frame(maxWidth: .infinity, alignment: .leading)
 
+            Text("Prefer a desktop widget? Add \u{201C}Claude Usage\u{201D} from Notification Center.")
+                .font(.caption2)
+                .foregroundStyle(.secondary)
+                .fixedSize(horizontal: false, vertical: true)
+                .frame(maxWidth: .infinity, alignment: .leading)
+
             HStack {
                 Label("Launch at login", systemImage: "power")
                     .accessibilityHidden(true)
