@@ -4,7 +4,8 @@ Claudemon is a native macOS menu-bar app that shows your **Claude Code
 subscription usage live**. It reads the same limits the Claude Code CLI reports
 and surfaces them in three places:
 
-- a compact gauge + session percentage in the **menu bar**,
+- a compact gauge + session percentage in the **menu bar** (with a
+  configurable style — icon + text, text only, or icon only),
 - an optional always-on-top **floating desktop window** (double-click to toggle
   a **mini session-only view**), and
 - a **Notification Center / desktop widget** (WidgetKit).
@@ -28,6 +29,31 @@ The floating window has two forms: the **full view** (session ring + weekly bars
 + reset footer) and a **mini view** that shows just the session ring. **Double-click
 the floating window** to switch between them — the mini view is a smaller,
 glanceable indicator that stays out of the way; double-click again to return.
+
+## Menu bar style & settings
+
+The menu bar fills up fast, so Claudemon lets you choose how much room its item
+takes. Open the panel and click the **⚙︎ gear** in the header to reveal the
+settings, then pick a **Menu bar style**:
+
+| Style | Shows | Notes |
+| --- | --- | --- |
+| **Icon + Text** | gauge icon + session percent (e.g. `◐ 28%`) | Default |
+| **Text only** | just the percent (`28%`) | Smallest footprint that still shows the number |
+| **Icon only** | just the gauge icon | Tightest footprint |
+
+Your choice is remembered across launches.
+
+The panel itself opens **clean** — usage data plus **Refresh** / **Quit** only.
+The **⚙︎ gear** in the panel header reveals (and hides) the settings section:
+**Menu bar style**, **Floating widget**, **Launch at login**, and **Usage
+alerts**. Settings stay collapsed by default so the everyday glance is
+uncluttered.
+
+> The menu-bar item can only show the gauge icon and/or the percent — macOS's
+> `MenuBarExtra` doesn't allow custom font sizes or colored labels there. The
+> in-panel usage bars and the floating/desktop widgets keep their green / yellow
+> / red coloring as before.
 
 ## Requirements
 
@@ -95,9 +121,10 @@ and installs the same Developer ID signed + notarized app. Update later with
 
 There is **no Dock icon** — Claudemon lives in the **menu bar** (top-right of the
 screen). Look for the gauge with a session percentage, e.g. `◐ 28%`. Click it to
-open the full panel, where you can toggle the floating window and "Launch at
-login." Once the floating window is on screen, **double-click it** to switch
-between the full and mini views.
+open the panel; click the **⚙︎ gear** in the panel header to reveal the settings,
+where you can choose the menu bar style, toggle the floating window, and enable
+"Launch at login." Once the floating window is on screen, **double-click it** to
+switch between the full and mini views.
 
 Because the app is notarized by Apple, it opens without a Gatekeeper warning. If
 macOS still complains (for example after copying it via an unusual route),

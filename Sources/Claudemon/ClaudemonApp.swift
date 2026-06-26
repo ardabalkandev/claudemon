@@ -1,6 +1,7 @@
 import SwiftUI
 import AppKit
 import UserNotifications
+import ClaudemonCore
 
 @main
 struct ClaudemonApp: App {
@@ -41,17 +42,47 @@ struct MenuBarLabel: View {
 
     var body: some View {
         HStack(spacing: 3) {
-            Image(systemName: gaugeSymbol)
-            if let percent = store.sessionPercent {
-                Text("\(percent)%")
-            } else if store.isNotInstalled || store.isNotSignedIn {
-                // Calm onboarding hint, not a scary error — a neutral dash.
-                Text("—")
-            } else if store.errorMessage != nil {
-                Image(systemName: "exclamationmark.triangle")
-            }
+            content
         }
         .accessibilityLabel(accessibilityLabel)
+    }
+
+    /// Normal (percent present) rendering routes through the user's chosen
+    /// display mode. The zero-content states (onboarding / error) override the
+    /// mode entirely so the item is never empty and stays clickable.
+    @ViewBuilder
+    private var content: some View {
+        if let percent = store.sessionPercent {
+            modeContent(percent: percent)
+        } else if store.isNotInstalled || store.isNotSignedIn {
+            // Calm onboarding hint, not a scary error — a neutral dash.
+            percentText("—")
+        } else if store.errorMessage != nil {
+            Image(systemName: "exclamationmark.triangle")
+        } else {
+            // Loading with no data yet: keep a neutral, clickable placeholder.
+            percentText("—")
+        }
+    }
+
+    @ViewBuilder
+    private func modeContent(percent: Int) -> some View {
+        switch store.menuBarDisplayMode {
+        case .iconAndText:
+            Image(systemName: gaugeSymbol)
+            percentText("\(percent)%")
+        case .textOnly:
+            percentText("\(percent)%")
+        case .iconOnly:
+            Image(systemName: gaugeSymbol)
+        }
+    }
+
+    /// Percent text at the default menu-bar size with monospaced digits so the
+    /// bar item width doesn't jitter as the value changes.
+    private func percentText(_ string: String) -> some View {
+        Text(string)
+            .monospacedDigit()
     }
 
     /// Pick a gauge glyph roughly reflecting the session fill level. When Claude

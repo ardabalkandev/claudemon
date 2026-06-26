@@ -9,6 +9,8 @@ struct MenuPanelView: View {
     @ObservedObject var notifications: NotificationManager
     @ObservedObject var updateChecker: UpdateChecker
 
+    @State private var showSettings = false
+
     var body: some View {
         VStack(alignment: .leading, spacing: 14) {
             header
@@ -16,6 +18,12 @@ struct MenuPanelView: View {
             Divider()
 
             content
+
+            if showSettings {
+                Divider()
+
+                settingsSection
+            }
 
             Divider()
 
@@ -40,6 +48,14 @@ struct MenuPanelView: View {
                     .controlSize(.small)
                     .accessibilityLabel("Refreshing")
             }
+            Button {
+                withAnimation(.easeInOut) { showSettings.toggle() }
+            } label: {
+                Image(systemName: showSettings ? "gearshape.fill" : "gearshape")
+            }
+            .buttonStyle(.borderless)
+            .accessibilityLabel("Settings")
+            .help("Settings")
         }
     }
 
@@ -209,10 +225,27 @@ struct MenuPanelView: View {
         }
     }
 
-    // MARK: - Footer
+    // MARK: - Settings (collapsible)
 
-    private var footer: some View {
+    private var settingsSection: some View {
         VStack(alignment: .leading, spacing: 10) {
+            HStack {
+                Label("Menu bar style", systemImage: "menubar.rectangle")
+                    .accessibilityHidden(true)
+                Spacer(minLength: 8)
+                Picker("Menu bar style", selection: $store.menuBarDisplayMode) {
+                    ForEach(MenuBarDisplayMode.allCases) { mode in
+                        Text(mode.label).tag(mode)
+                    }
+                }
+                .labelsHidden()
+                .pickerStyle(.menu)
+                .controlSize(.small)
+                .fixedSize()
+                .accessibilityLabel("Menu bar style")
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+
             HStack {
                 Label("Floating widget", systemImage: "rectangle.on.rectangle")
                     .accessibilityHidden(true)
@@ -256,7 +289,13 @@ struct MenuPanelView: View {
                 .controlSize(.small)
                 .help("Open System Settings > General > Login Items to allow Claudemon to launch at login.")
             }
+        }
+    }
 
+    // MARK: - Footer
+
+    private var footer: some View {
+        VStack(alignment: .leading, spacing: 10) {
             HStack {
                 if let updated = store.lastUpdated {
                     // lastUpdated reflects the last SUCCESSFUL capture. Calm

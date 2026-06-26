@@ -59,8 +59,17 @@ final class UsageStore: ObservableObject {
     /// controller so it can resize the panel).
     var floatingCompactChange: ((Bool) -> Void)?
 
+    /// How the menu-bar label presents the session percent. Persisted as the
+    /// case's rawValue. Defaults to `.iconAndText`.
+    @Published var menuBarDisplayMode: MenuBarDisplayMode {
+        didSet {
+            UserDefaults.standard.set(menuBarDisplayMode.rawValue, forKey: Self.menuBarDisplayModeKey)
+        }
+    }
+
     static let floatingDefaultsKey = "floatingWidgetEnabled"
     static let floatingCompactKey = "floatingWidgetCompact"
+    static let menuBarDisplayModeKey = "menuBarDisplayMode"
     private let pollInterval: TimeInterval = 60
     private var timer: Timer?
     private var currentTask: Task<Void, Never>?
@@ -107,6 +116,8 @@ final class UsageStore: ObservableObject {
         self.cache = cache
         self.floatingEnabled = UserDefaults.standard.bool(forKey: Self.floatingDefaultsKey)
         self.floatingCompact = UserDefaults.standard.bool(forKey: Self.floatingCompactKey)
+        let storedMode = UserDefaults.standard.string(forKey: Self.menuBarDisplayModeKey)
+        self.menuBarDisplayMode = storedMode.flatMap(MenuBarDisplayMode.init(rawValue:)) ?? .iconAndText
     }
 
     // MARK: - Lifecycle
