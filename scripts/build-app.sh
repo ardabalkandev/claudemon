@@ -24,7 +24,12 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ROOT_DIR="$(cd "${SCRIPT_DIR}/.." && pwd)"
 cd "${ROOT_DIR}"
 
-BUILD_DIR="${ROOT_DIR}/.build/release"
+# SwiftPM build dir. Kept OUTSIDE the repo by default: llbuild's build.db
+# (SQLite) throws "disk I/O error" when the scratch path contains spaces
+# (this repo lives under ".../MacOS Projects/..."). Build into a space-free
+# path via --scratch-path; override with CLAUDEMON_SCRATCH if needed.
+SCRATCH="${CLAUDEMON_SCRATCH:-/tmp/claudemon-spm-build}"
+BUILD_DIR="${SCRATCH}/release"
 APP_BUNDLE="${ROOT_DIR}/${APP_NAME}.app"
 CONTENTS="${APP_BUNDLE}/Contents"
 MACOS_DIR="${CONTENTS}/MacOS"
@@ -32,7 +37,7 @@ RESOURCES_DIR="${CONTENTS}/Resources"
 
 # --- Build ------------------------------------------------------------------
 echo "==> Building ${APP_NAME} (release)…"
-swift build -c release
+swift build -c release --scratch-path "${SCRATCH}"
 
 BINARY_PATH="${BUILD_DIR}/${APP_NAME}"
 if [[ ! -f "${BINARY_PATH}" ]]; then
