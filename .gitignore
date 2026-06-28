@@ -1,3 +1,6 @@
+# SwiftPM build directory.
+# Must be ignored — build.db (SQLite) can throw "disk I/O error" when the
+# project path contains spaces (e.g. "MacOS Projects").
 .build/
 build/
 dist/
