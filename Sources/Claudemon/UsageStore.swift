@@ -130,6 +130,12 @@ final class UsageStore: ObservableObject {
         // UI shows instantly and a first-fetch stale-render keeps this data
         // instead of dropping back to the blank `.loading` placeholder.
         primeFromCache()
+        // One-shot nudge across ALL widget kinds right after launch priming so a
+        // widget that installed while the app was closed (and may be frozen on an
+        // older snapshot) re-reads the now-canonical shared cache immediately,
+        // instead of waiting for its own ~15-minute timeline policy. This is a
+        // single reload at start, not part of the per-poll rate-limited path.
+        WidgetCenter.shared.reloadAllTimelines()
         refresh()
         scheduleTimer()
     }
@@ -149,6 +155,10 @@ final class UsageStore: ObservableObject {
         // data look freshly updated and suppress the "· stale" footer hint.
         // Matching applySuccess keeps lastUpdated an honest "last capture" time.
         lastUpdated = report.capturedAt
+        // Push the primed content to the widget too. The rate-limit keys
+        // "changed" off the metric snapshot, so this reloads only when the cache
+        // content differs from what the widget was last told (e.g. on launch).
+        reloadWidgetIfNeeded(for: report)
     }
 
     func stop() {
@@ -245,6 +255,11 @@ final class UsageStore: ObservableObject {
             // honest (we did not get newer data this tick).
             cache.write(CachedUsage(report: report, state: .ok,
                                     errorMessage: nil, writtenAt: report.capturedAt))
+            // Reload on this warm path too, not only on applySuccess. The
+            // snapshot-based rate-limit makes this a no-op when the content is
+            // unchanged, so genuinely-new last-good data still reaches the widget
+            // without spamming reloads.
+            reloadWidgetIfNeeded(for: report)
         } else {
             // Cold path: no data yet (e.g. right after launch before the first
             // hit). Normally stay in a neutral loading/waiting state, NOT an

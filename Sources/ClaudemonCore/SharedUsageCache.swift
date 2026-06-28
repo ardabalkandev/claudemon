@@ -8,17 +8,12 @@ private let sharedUsageCacheLogger = Logger(
     category: "SharedUsageCache"
 )
 
-/// Candidate App Group identifiers, in resolution order. The team-prefixed ID
-/// comes FIRST so the non-sandboxed app (writer) and the sandboxed widget
-/// (reader) meet in the same container directory; the bare ID is kept as a
-/// fallback for any sandbox-mediated environment that maps it transparently.
-public let claudemonAppGroupIDCandidates = [
-    "3QKMW9HR59.group.com.claudemon.app",
-    "group.com.claudemon.app",
-]
-
-/// The shared App Group identifier used by both the app and the widget.
-public let claudemonAppGroupID = claudemonAppGroupIDCandidates[0]
+/// The single, canonical App Group identifier used by BOTH the app (writer) and
+/// the widget (reader). It is the team-prefixed ID declared in both
+/// `Support/Claudemon.entitlements` and `Support/ClaudemonWidget.entitlements`.
+/// There is intentionally NO fallback: writer and reader must resolve the exact
+/// same container, otherwise the widget silently reads a divergent stale file.
+public let claudemonAppGroupID = "3QKMW9HR59.group.com.claudemon.app"
 
 /// The widget kind string, shared so the app can request reloads by name.
 public let claudemonWidgetKind = "ClaudemonWidget"
@@ -80,31 +75,28 @@ public struct SharedUsageCache {
         if let baseDirectory {
             return baseDirectory.appendingPathComponent(fileName, conformingTo: .json)
         }
-        // Try each candidate App Group ID in order (this instance's groupID
-        // first, then the shared candidates) and use the first that resolves to
-        // a real container URL. The non-sandboxed app and the sandboxed widget
-        // both run this identical logic, so they converge on the same directory.
-        var seen = Set<String>()
-        let candidates = ([groupID] + claudemonAppGroupIDCandidates)
-            .filter { seen.insert($0).inserted }
-        for candidate in candidates {
-            if let container = FileManager.default
-                .containerURL(forSecurityApplicationGroupIdentifier: candidate) {
-                // Debug-level: fine to emit on every call (not persisted by
-                // default) and records which candidate actually resolved.
-                sharedUsageCacheLogger.debug(
-                    "App Group container resolved for candidate \(candidate, privacy: .public)"
-                )
-                return container.appendingPathComponent(fileName, conformingTo: .json)
-            }
+        // Resolve the ONE canonical App Group container. The non-sandboxed app
+        // (writer) and the sandboxed widget (reader) run this identical logic, so
+        // they converge on the exact same directory. There is deliberately no
+        // fallback to another identifier: a silent fallback let the writer and
+        // reader land in different containers, leaving the widget frozen on a
+        // stale file.
+        guard let container = FileManager.default
+            .containerURL(forSecurityApplicationGroupIdentifier: groupID) else {
+            // Loud signal: a real (non-test) run could not resolve the canonical
+            // container, so the widget cache will not be shared. This surfaces
+            // signing/entitlement regressions instead of silently producing an
+            // empty (or stale) widget. We do NOT fall back to another container.
+            sharedUsageCacheLogger.error(
+                "App Group container could not be resolved for \(self.groupID, privacy: .public); widget cache will not be shared."
+            )
+            return nil
         }
-        // Loud signal: a real (non-test) run could not resolve any candidate, so
-        // the widget cache will not be shared. This surfaces signing/entitlement
-        // regressions instead of silently producing an empty widget.
-        sharedUsageCacheLogger.error(
-            "App Group container could not be resolved for any candidate; widget cache will not be shared."
+        // Debug-level: fine to emit on every call (not persisted by default).
+        sharedUsageCacheLogger.debug(
+            "App Group container resolved for \(self.groupID, privacy: .public)"
         )
-        return nil
+        return container.appendingPathComponent(fileName, conformingTo: .json)
     }
 
     // MARK: - Write (app side)

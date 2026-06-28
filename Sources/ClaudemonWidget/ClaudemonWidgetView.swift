@@ -32,44 +32,74 @@ struct SmallUsageView: View {
     private var week: Int { report.weekAll?.percent ?? 0 }
 
     var body: some View {
-        VStack(spacing: 6) {
-            ZStack {
-                Circle().stroke(Color.primary.opacity(0.12), lineWidth: 8)
-                Circle()
-                    .trim(from: 0, to: CGFloat(min(session, 100)) / 100.0)
-                    .stroke(UsageColor.color(for: session),
-                            style: StrokeStyle(lineWidth: 8, lineCap: .round))
-                    .rotationEffect(.degrees(-90))
-                VStack(spacing: 1) {
-                    Text("\(session)%")
-                        .font(.system(size: 18, weight: .bold).monospacedDigit())
-                    Text("session")
-                        .font(.system(size: 9, weight: .medium))
-                        .textCase(.uppercase)
-                        .foregroundStyle(.secondary)
-                }
-            }
-            .frame(width: 66, height: 66)
+        VStack(spacing: 0) {
+            Spacer(minLength: 0)
+
+            ring
+
+            Spacer(minLength: 0)
 
             HStack(spacing: 4) {
                 Text("Week")
-                    .font(.caption2)
+                    .font(.subheadline)
                     .foregroundStyle(.secondary)
                 Text("\(week)%")
-                    .font(.caption2.weight(.semibold).monospacedDigit())
+                    .font(.subheadline.weight(.semibold).monospacedDigit())
                     .foregroundStyle(UsageColor.color(for: week))
             }
+            .minimumScaleFactor(0.7)
+            .lineLimit(1)
+
+            Spacer(minLength: 0)
 
             footerLine
         }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
         .accessibilityElement(children: .combine)
         .accessibilityLabel("Session \(session) percent, Week \(week) percent")
+    }
+
+    /// Session ring that scales to fill the available width using GeometryReader.
+    private var ring: some View {
+        GeometryReader { geo in
+            let diameter = min(geo.size.width, geo.size.height)
+            let lineWidth = max(diameter * 0.10, 4)
+            let percentFont = diameter * 0.30
+            let captionFont = diameter * 0.11
+
+            ZStack {
+                Circle().stroke(Color.primary.opacity(0.12), lineWidth: lineWidth)
+                Circle()
+                    .trim(from: 0, to: CGFloat(min(session, 100)) / 100.0)
+                    .stroke(UsageColor.color(for: session),
+                            style: StrokeStyle(lineWidth: lineWidth, lineCap: .round))
+                    .rotationEffect(.degrees(-90))
+                VStack(spacing: 1) {
+                    Text("\(session)%")
+                        .font(.system(size: percentFont, weight: .bold).monospacedDigit())
+                        .minimumScaleFactor(0.5)
+                        .lineLimit(1)
+                    Text("session")
+                        .font(.system(size: captionFont, weight: .medium))
+                        .textCase(.uppercase)
+                        .foregroundStyle(.secondary)
+                        .minimumScaleFactor(0.5)
+                        .lineLimit(1)
+                }
+                .padding(lineWidth)
+            }
+            .frame(width: diameter, height: diameter)
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+        }
+        .aspectRatio(1, contentMode: .fit)
     }
 
     @ViewBuilder private var footerLine: some View {
         if let capturedAt {
             Text("\(isStale ? "stale · " : "")as of \(UsageFormatting.shortClockString(capturedAt))")
-                .font(.system(size: 8))
+                .font(.caption2)
+                .minimumScaleFactor(0.7)
+                .lineLimit(1)
                 .foregroundStyle(isStale ? .orange : .secondary)
         }
     }
