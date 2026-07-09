@@ -104,9 +104,11 @@ struct MenuPanelView: View {
                 .foregroundStyle(.secondary)
                 .fixedSize(horizontal: false, vertical: true)
             installCommand("npm install -g @anthropic-ai/claude-code")
-            Link(destination: URL(string: "https://claude.ai/download")!) {
-                Label("Get Claude Code", systemImage: "arrow.up.right.square")
-                    .font(.caption)
+            if let downloadURL = URL(string: "https://claude.ai/download") {
+                Link(destination: downloadURL) {
+                    Label("Get Claude Code", systemImage: "arrow.up.right.square")
+                        .font(.caption)
+                }
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)

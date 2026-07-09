@@ -25,6 +25,9 @@ final class UpdateChecker: ObservableObject {
 
     @Published private(set) var state: State = .idle
 
+    private static let latestReleaseEndpoint =
+        "https://api.github.com/repos/ardabalkandev/claudemon/releases/latest"
+
     /// The running app's marketing version (e.g. "1.1.2"). Falls back to "0"
     /// when no Info.plist is embedded (e.g. plain `swift build` CLI runs).
     let currentVersion: String
@@ -45,7 +48,11 @@ final class UpdateChecker: ObservableObject {
         guard state != .checking else { return }
         state = .checking
 
-        let endpoint = URL(string: "https://api.github.com/repos/ardabalkandev/claudemon/releases/latest")!
+        guard let endpoint = URL(string: Self.latestReleaseEndpoint) else {
+            updateLog.error("update check endpoint URL is invalid")
+            state = .failed("Couldn't check for updates")
+            return
+        }
         var request = URLRequest(url: endpoint)
         request.setValue("application/vnd.github+json", forHTTPHeaderField: "Accept")
         // GitHub rejects API requests without a User-Agent.

@@ -305,9 +305,12 @@ Prerequisites on the build machine:
 
 ## Privacy
 
-All data stays on your machine. Claudemon only runs the `claude` CLI locally and
-reads its output; it makes **no network calls of its own** and has **no
-telemetry**. It does not collect, transmit, or share any of your data.
+All usage data stays on your machine. Claudemon runs the `claude` CLI locally
+and reads its output; it does not collect, transmit, or share your usage data.
+The only app-initiated network request is the **Check for Updates** call to
+GitHub Releases (automatic at most once per day, and when you click the button),
+which sends a standard HTTPS request with the app version as its User-Agent and
+has **no telemetry**.
 
 ## Disclaimer
 
