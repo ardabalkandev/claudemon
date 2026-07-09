@@ -67,9 +67,57 @@ final class UsageStore: ObservableObject {
         }
     }
 
+    // Sub-options for the `.bars` menu-bar style. Only consulted when that
+    // style is active; persisted individually so they survive style switches.
+
+    /// Show the weekly (all models) limit as a second bar under/next to the
+    /// session bar.
+    @Published var menuBarShowsWeekBar: Bool {
+        didSet {
+            UserDefaults.standard.set(menuBarShowsWeekBar, forKey: Self.menuBarShowsWeekBarKey)
+        }
+    }
+
+    /// Show the percent value(s) beside the bar(s).
+    @Published var menuBarShowsPercent: Bool {
+        didSet {
+            UserDefaults.standard.set(menuBarShowsPercent, forKey: Self.menuBarShowsPercentKey)
+        }
+    }
+
+    /// Use vertical (bottom-up) bars instead of horizontal ones.
+    @Published var menuBarBarsVertical: Bool {
+        didSet {
+            UserDefaults.standard.set(menuBarBarsVertical, forKey: Self.menuBarBarsVerticalKey)
+        }
+    }
+
+    /// Horizontal bars at half the standard width (ignored in vertical mode).
+    @Published var menuBarBarsHalfWidth: Bool {
+        didSet {
+            UserDefaults.standard.set(menuBarBarsHalfWidth, forKey: Self.menuBarBarsHalfWidthKey)
+        }
+    }
+
+    /// Draw all usage-bar fills at their exact proportional width (straight
+    /// edges, no minimum sliver) so small values are visually distinct.
+    /// Persisted in the App Group defaults suite — not standard defaults — so
+    /// the widget process sees it too; a direct reload nudges the widget to
+    /// redraw promptly instead of waiting out its ~15-minute timeline policy.
+    @Published var preciseBars: Bool {
+        didSet {
+            PreciseBarsPreference.write(preciseBars)
+            WidgetCenter.shared.reloadTimelines(ofKind: claudemonWidgetKind)
+        }
+    }
+
     static let floatingDefaultsKey = "floatingWidgetEnabled"
     static let floatingCompactKey = "floatingWidgetCompact"
     static let menuBarDisplayModeKey = "menuBarDisplayMode"
+    static let menuBarShowsWeekBarKey = "menuBarShowsWeekBar"
+    static let menuBarShowsPercentKey = "menuBarShowsPercent"
+    static let menuBarBarsVerticalKey = "menuBarBarsVertical"
+    static let menuBarBarsHalfWidthKey = "menuBarBarsHalfWidth"
     private let pollInterval: TimeInterval = 60
     private var timer: Timer?
     private var currentTask: Task<Void, Never>?
@@ -118,6 +166,13 @@ final class UsageStore: ObservableObject {
         self.floatingCompact = UserDefaults.standard.bool(forKey: Self.floatingCompactKey)
         let storedMode = UserDefaults.standard.string(forKey: Self.menuBarDisplayModeKey)
         self.menuBarDisplayMode = storedMode.flatMap(MenuBarDisplayMode.init(rawValue:)) ?? .iconAndText
+        let defaults = UserDefaults.standard
+        self.menuBarShowsWeekBar = defaults.bool(forKey: Self.menuBarShowsWeekBarKey)
+        // Percentages default ON (absent key reads nil, not false).
+        self.menuBarShowsPercent = (defaults.object(forKey: Self.menuBarShowsPercentKey) as? Bool) ?? true
+        self.menuBarBarsVertical = defaults.bool(forKey: Self.menuBarBarsVerticalKey)
+        self.menuBarBarsHalfWidth = defaults.bool(forKey: Self.menuBarBarsHalfWidthKey)
+        self.preciseBars = PreciseBarsPreference.read()
     }
 
     // MARK: - Lifecycle
@@ -407,5 +462,10 @@ final class UsageStore: ObservableObject {
     /// Session percent for the compact menu-bar label, if available.
     var sessionPercent: Int? {
         lastGoodReport?.session?.percent
+    }
+
+    /// Weekly (all models) percent for the menu-bar bar-graph label, if available.
+    var weekAllPercent: Int? {
+        lastGoodReport?.weekAll?.percent
     }
 }

@@ -44,19 +44,42 @@ settings, then pick a **Menu bar style**:
 | **Icon + Text** | gauge icon + session percent (e.g. `◐ 28%`) | Default |
 | **Text only** | just the percent (`28%`) | Smallest footprint that still shows the number |
 | **Icon only** | just the gauge icon | Tightest footprint |
+| **Bar graph** | a fixed-width session usage bar | Colored green/yellow/red like the in-app bars; options below |
 
-Your choice is remembered across launches.
+Choosing **Bar graph** reveals three extra options under the style picker:
+
+- **Weekly bar** — adds a second bar for **Current Week (all models)** under
+  (or, in vertical mode, next to) the session bar.
+- **Percentages** — shows the percent value(s) beside the bars; with two bars
+  they stack vertically in a smaller font, in the same order as the bars
+  (session first).
+- **Vertical bars** — side-by-side vertical bars that fill bottom-up, instead
+  of stacked horizontal ones.
+- **Half-width bars** — horizontal bars at half the standard width, for the
+  tightest bar-graph footprint. (Horizontal only — a vertical bar's length is
+  the menu-bar height, so the toggle hides in vertical mode.)
+
+Your choices are remembered across launches.
 
 The panel itself opens **clean** — usage data plus **Refresh** / **Quit** only.
 The **⚙︎ gear** in the panel header reveals (and hides) the settings section:
-**Menu bar style**, **Floating widget**, **Launch at login**, and **Usage
-alerts**. Settings stay collapsed by default so the everyday glance is
-uncluttered.
+**Menu bar style**, **Floating widget**, **Precise bar fill**, **Launch at
+login**, and **Usage alerts**. Settings stay collapsed by default so the
+everyday glance is uncluttered.
 
-> The menu-bar item can only show the gauge icon and/or the percent — macOS's
-> `MenuBarExtra` doesn't allow custom font sizes or colored labels there. The
-> in-panel usage bars and the floating/desktop widgets keep their green / yellow
-> / red coloring as before.
+**Precise bar fill** applies to every usage bar Claudemon draws — the menu-bar
+bar graph, the panel, the floating window, and the desktop widget. By default,
+bar fills are rounded and keep a small minimum size so low values still read as
+"some usage" at a glance — the trade-off is that 2% and 8% look almost the
+same. With precise fill on, fills are drawn straight-edged at their exact
+proportional width (the bar's outline stays rounded), so small values are
+visually distinct.
+
+> macOS's `MenuBarExtra` doesn't allow custom font sizes or colored labels in
+> the menu-bar item, so the text styles can only show the gauge icon and/or the
+> percent. The **Bar graph** style works around this by pre-rendering the bars
+> into an image, which is how it keeps the green / yellow / red coloring of the
+> in-panel usage bars and the floating/desktop widgets.
 
 ## Requirements
 
