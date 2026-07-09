@@ -36,9 +36,16 @@ final class ClaudemonAppState {
     private init() {}
 }
 
-/// Compact menu-bar label: gauge SF Symbol + live session percent.
+/// Compact menu-bar label: gauge SF Symbol + live session percent, or a
+/// rasterized bar graph in the `.bars` display mode.
 struct MenuBarLabel: View {
     @ObservedObject var store: UsageStore
+
+    // The menu bar renders live label views as template (monochrome) content,
+    // so the bar-graph mode is rasterized into a non-template NSImage. These
+    // drive the raster's appearance and sharpness.
+    @Environment(\.colorScheme) private var colorScheme
+    @Environment(\.displayScale) private var displayScale
 
     var body: some View {
         HStack(spacing: 3) {
@@ -75,7 +82,39 @@ struct MenuBarLabel: View {
             percentText("\(percent)%")
         case .iconOnly:
             Image(systemName: gaugeSymbol)
+        case .bars:
+            if let image = barsImage(sessionPercent: percent) {
+                Image(nsImage: image)
+            } else {
+                // Rasterization failed (shouldn't happen): fall back to text
+                // so the item is never empty.
+                percentText("\(percent)%")
+            }
         }
+    }
+
+    /// Rasterize the bar graph into a non-template NSImage so the bars keep
+    /// their green/yellow/red colors — the menu bar strips colors from live
+    /// SwiftUI label views. Re-evaluated whenever the store publishes or the
+    /// menu-bar appearance/scale changes; the view is tiny, so rendering is
+    /// cheap at the 60s poll cadence.
+    private func barsImage(sessionPercent: Int) -> NSImage? {
+        let config = MenuBarBarsView.Configuration(
+            sessionPercent: sessionPercent,
+            weekPercent: store.menuBarShowsWeekBar ? store.weekAllPercent : nil,
+            showsPercent: store.menuBarShowsPercent,
+            isVertical: store.menuBarBarsVertical,
+            preciseFill: store.preciseBars,
+            halfWidthBars: store.menuBarBarsHalfWidth
+        )
+        let renderer = ImageRenderer(content: MenuBarBarsView(config)
+            .environment(\.colorScheme, colorScheme))
+        renderer.scale = displayScale > 0
+            ? displayScale
+            : (NSScreen.main?.backingScaleFactor ?? 2)
+        guard let image = renderer.nsImage else { return nil }
+        image.isTemplate = false
+        return image
     }
 
     /// Percent text at the default menu-bar size with monospaced digits so the
@@ -98,6 +137,10 @@ struct MenuBarLabel: View {
 
     private var accessibilityLabel: String {
         if let p = store.sessionPercent {
+            if store.menuBarDisplayMode == .bars, store.menuBarShowsWeekBar,
+               let week = store.weekAllPercent {
+                return "Claudemon, session \(p) percent, week \(week) percent used"
+            }
             return "Claudemon, session \(p) percent used"
         }
         if store.isNotInstalled { return "Claudemon, Claude Code isn't installed" }

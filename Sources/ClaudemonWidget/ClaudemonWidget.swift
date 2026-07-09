@@ -11,6 +11,9 @@ struct UsageEntry: TimelineEntry {
     /// When the cached data was captured (for the "as of" line).
     let capturedAt: Date?
     let isStale: Bool
+    /// Exact straight-edged bar fills (app setting, shared via the App Group
+    /// defaults suite).
+    let preciseBars: Bool
 }
 
 // MARK: - Provider (network-free: reads ONLY the App Group cache)
@@ -20,7 +23,8 @@ struct UsageProvider: TimelineProvider {
     private let cache = SharedUsageCache.shared
 
     func placeholder(in context: Context) -> UsageEntry {
-        UsageEntry(date: Date(), report: Self.sampleReport, capturedAt: Date(), isStale: false)
+        UsageEntry(date: Date(), report: Self.sampleReport, capturedAt: Date(),
+                   isStale: false, preciseBars: false)
     }
 
     func getSnapshot(in context: Context, completion: @escaping (UsageEntry) -> Void) {
@@ -37,14 +41,17 @@ struct UsageProvider: TimelineProvider {
 
     /// Build an entry from the shared cache, falling back gracefully.
     private func makeEntry() -> UsageEntry {
+        let precise = PreciseBarsPreference.read()
         guard let cached = cache.read() else {
-            return UsageEntry(date: Date(), report: nil, capturedAt: nil, isStale: false)
+            return UsageEntry(date: Date(), report: nil, capturedAt: nil,
+                              isStale: false, preciseBars: precise)
         }
         return UsageEntry(
             date: Date(),
             report: cached.report,
             capturedAt: cached.report != nil ? cached.writtenAt : nil,
-            isStale: cached.state != .ok
+            isStale: cached.state != .ok,
+            preciseBars: precise
         )
     }
 

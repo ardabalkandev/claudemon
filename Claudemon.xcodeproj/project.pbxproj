@@ -534,11 +534,11 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = Support/Claudemon.entitlements;
 				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 13;
 				ENABLE_HARDENED_RUNTIME = YES;
 				INFOPLIST_FILE = "Support/Claudemon-Info.plist";
-				LD_RUNPATH_SEARCH_PATHS = (
-					"@executable_path/../Frameworks",
-				);
+				LD_RUNPATH_SEARCH_PATHS = "@executable_path/../Frameworks";
+				MARKETING_VERSION = 1.4.4;
 				PRODUCT_BUNDLE_IDENTIFIER = com.claudemon.app;
 				SDKROOT = macosx;
 			};
@@ -637,9 +637,7 @@
 				COMBINE_HIDPI_IMAGES = YES;
 				ENABLE_HARDENED_RUNTIME = YES;
 				INFOPLIST_FILE = "Support/ClaudemonWidget-Info.plist";
-				LD_RUNPATH_SEARCH_PATHS = (
-					"@executable_path/../../../../Frameworks",
-				);
+				LD_RUNPATH_SEARCH_PATHS = "@executable_path/../../../../Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.claudemon.app.widget;
 				SDKROOT = macosx;
 			};
@@ -776,11 +774,11 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = Support/Claudemon.entitlements;
 				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 13;
 				ENABLE_HARDENED_RUNTIME = YES;
 				INFOPLIST_FILE = "Support/Claudemon-Info.plist";
-				LD_RUNPATH_SEARCH_PATHS = (
-					"@executable_path/../Frameworks",
-				);
+				LD_RUNPATH_SEARCH_PATHS = "@executable_path/../Frameworks";
+				MARKETING_VERSION = 1.4.4;
 				PRODUCT_BUNDLE_IDENTIFIER = com.claudemon.app;
 				SDKROOT = macosx;
 			};
@@ -793,9 +791,7 @@
 				COMBINE_HIDPI_IMAGES = YES;
 				ENABLE_HARDENED_RUNTIME = YES;
 				INFOPLIST_FILE = "Support/ClaudemonWidget-Info.plist";
-				LD_RUNPATH_SEARCH_PATHS = (
-					"@executable_path/../../../../Frameworks",
-				);
+				LD_RUNPATH_SEARCH_PATHS = "@executable_path/../../../../Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.claudemon.app.widget;
 				SDKROOT = macosx;
 			};

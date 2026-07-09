@@ -170,27 +170,32 @@ final class NotificationManager: ObservableObject {
 
     /// Ask for permission if the user hasn't decided yet; harmless if already
     /// granted. Updates `permissionDenied` for the UI.
+    /// Async UNUserNotificationCenter API (not completion handlers) so the
+    /// Task inherits this class's main-actor isolation end to end.
     func requestAuthorizationIfNeeded() {
-        center.getNotificationSettings { [weak self] settings in
-            switch settings.authorizationStatus {
+        Task {
+            switch await center.notificationSettings().authorizationStatus {
             case .notDetermined:
-                self?.center.requestAuthorization(options: [.alert, .sound]) { granted, _ in
-                    Task { @MainActor in self?.permissionDenied = !granted }
+                do {
+                    let granted = try await center.requestAuthorization(options: [.alert, .sound])
+                    permissionDenied = !granted
+                } catch {
+                    // Rare OS-level failure: surface the "enable in System
+                    // Settings" hint rather than silently staying enabled-looking.
+                    permissionDenied = true
                 }
             case .denied:
-                Task { @MainActor in self?.permissionDenied = true }
+                permissionDenied = true
             default:
-                Task { @MainActor in self?.permissionDenied = false }
+                permissionDenied = false
             }
         }
     }
 
     /// Refresh `permissionDenied` from the current OS state without prompting.
     func refreshAuthorizationStatus() {
-        center.getNotificationSettings { [weak self] settings in
-            Task { @MainActor in
-                self?.permissionDenied = settings.authorizationStatus == .denied
-            }
+        Task {
+            permissionDenied = await center.notificationSettings().authorizationStatus == .denied
         }
     }
 }

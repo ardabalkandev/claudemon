@@ -168,7 +168,7 @@ struct FloatingWidgetView: View {
                     .font(.system(size: 11, weight: .semibold).monospacedDigit())
                     .foregroundStyle(hasData ? UsageColor.color(for: percent) : .secondary)
             }
-            UsageBar(percent: hasData ? percent : 0, height: 5)
+            UsageBar(percent: hasData ? percent : 0, height: 5, precise: store.preciseBars)
         }
     }
 

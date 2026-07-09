@@ -66,7 +66,7 @@ struct MenuPanelView: View {
         if let report = store.lastGoodReport {
             VStack(spacing: 14) {
                 ForEach(report.metrics) { metric in
-                    MetricRow(metric: metric)
+                    MetricRow(metric: metric, preciseBar: store.preciseBars)
                 }
             }
             // Only a GENUINE failure (while showing last-good data) gets an
@@ -219,6 +219,15 @@ struct MenuPanelView: View {
         .frame(maxWidth: .infinity, alignment: .leading)
     }
 
+    /// A compact checkbox row for the bar-graph style's sub-options, matching
+    /// the notification-threshold rows' styling.
+    private func barsOptionToggle(_ title: String, isOn: Binding<Bool>) -> some View {
+        Toggle(title, isOn: isOn)
+            .toggleStyle(.checkbox)
+            .controlSize(.small)
+            .font(.caption)
+    }
+
     private func openNotificationSettings() {
         if let url = URL(string: "x-apple.systempreferences:com.apple.Notifications-Settings.extension") {
             NSWorkspace.shared.open(url)
@@ -246,6 +255,21 @@ struct MenuPanelView: View {
             }
             .frame(maxWidth: .infinity, alignment: .leading)
 
+            if store.menuBarDisplayMode == .bars {
+                VStack(alignment: .leading, spacing: 4) {
+                    barsOptionToggle("Weekly bar", isOn: $store.menuBarShowsWeekBar)
+                    barsOptionToggle("Percentages", isOn: $store.menuBarShowsPercent)
+                    barsOptionToggle("Vertical bars", isOn: $store.menuBarBarsVertical)
+                    if !store.menuBarBarsVertical {
+                        // Width only applies to horizontal bars — a vertical
+                        // bar's length is the menu-bar height.
+                        barsOptionToggle("Half-width bars", isOn: $store.menuBarBarsHalfWidth)
+                    }
+                }
+                .padding(.leading, 22)
+                .transition(.opacity)
+            }
+
             HStack {
                 Label("Floating widget", systemImage: "rectangle.on.rectangle")
                     .accessibilityHidden(true)
@@ -259,6 +283,24 @@ struct MenuPanelView: View {
             .frame(maxWidth: .infinity, alignment: .leading)
 
             Text("Prefer a desktop widget? Add \u{201C}Claude Usage\u{201D} from Notification Center.")
+                .font(.caption2)
+                .foregroundStyle(.secondary)
+                .fixedSize(horizontal: false, vertical: true)
+                .frame(maxWidth: .infinity, alignment: .leading)
+
+            HStack {
+                Label("Precise bar fill", systemImage: "ruler")
+                    .accessibilityHidden(true)
+                Spacer(minLength: 8)
+                Toggle("", isOn: $store.preciseBars)
+                    .labelsHidden()
+                    .toggleStyle(.switch)
+                    .controlSize(.small)
+                    .accessibilityLabel("Precise bar fill")
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+
+            Text("Draw bar fills at their exact width, so low values like 2% and 8% look different.")
                 .font(.caption2)
                 .foregroundStyle(.secondary)
                 .fixedSize(horizontal: false, vertical: true)
@@ -393,6 +435,7 @@ struct MenuPanelView: View {
 /// A single labeled metric row: name, percent, progress bar, countdown.
 struct MetricRow: View {
     let metric: UsageMetric
+    let preciseBar: Bool
 
     @State private var now: Date = Date()
     private let ticker = Timer.publish(every: 30, on: .main, in: .common).autoconnect()
@@ -408,9 +451,10 @@ struct MetricRow: View {
                     .foregroundStyle(UsageColor.color(for: metric.percent))
             }
 
-            ProgressView(value: Double(metric.percent), total: 100)
-                .progressViewStyle(.linear)
-                .tint(UsageColor.color(for: metric.percent))
+            // The shared UsageBar (not ProgressView) so the panel fills exactly
+            // like the floating window and widget, and honors the precise-fill
+            // option.
+            UsageBar(percent: metric.percent, height: 6, precise: preciseBar)
 
             HStack(spacing: 4) {
                 Image(systemName: "clock")

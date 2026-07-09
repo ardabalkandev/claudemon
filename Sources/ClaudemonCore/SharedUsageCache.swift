@@ -18,6 +18,22 @@ public let claudemonAppGroupID = "3QKMW9HR59.group.com.claudemon.app"
 /// The widget kind string, shared so the app can request reloads by name.
 public let claudemonWidgetKind = "ClaudemonWidget"
 
+/// The "precise bar fill" display preference, shared between the app (writer)
+/// and the widget (reader) through the App Group defaults suite — the widget
+/// runs in its own process and cannot see the app's standard defaults.
+public enum PreciseBarsPreference {
+    public static let key = "preciseBarFill"
+
+    /// `defaults` is injectable for tests; production uses the App Group suite.
+    public static func read(from defaults: UserDefaults? = UserDefaults(suiteName: claudemonAppGroupID)) -> Bool {
+        defaults?.bool(forKey: key) ?? false
+    }
+
+    public static func write(_ value: Bool, to defaults: UserDefaults? = UserDefaults(suiteName: claudemonAppGroupID)) {
+        defaults?.set(value, forKey: key)
+    }
+}
+
 /// High-level freshness flag persisted alongside the cached report.
 public enum CachedUsageState: String, Codable, Sendable {
     case ok       // last write was a successful fresh poll
