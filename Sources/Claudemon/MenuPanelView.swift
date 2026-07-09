@@ -196,6 +196,11 @@ struct MenuPanelView: View {
                         .font(.caption)
                     }
 
+                    Toggle("When a limit resets", isOn: $notifications.resetAlertsEnabled)
+                        .toggleStyle(.checkbox)
+                        .controlSize(.small)
+                        .font(.caption)
+
                     if notifications.permissionDenied {
                         Button {
                             openNotificationSettings()
@@ -208,7 +213,7 @@ struct MenuPanelView: View {
                         .controlSize(.small)
                         .help("macOS is blocking Claudemon's notifications. Allow them in System Settings > Notifications.")
                     } else {
-                        Text("Alerts fire once per quota window for each tracked limit.")
+                        Text("Alerts fire once per quota window for each tracked limit. Reset alerts fire once when a used limit resets.")
                             .font(.caption2)
                             .foregroundStyle(.secondary)
                             .fixedSize(horizontal: false, vertical: true)

@@ -201,4 +201,117 @@ final class UsageAlertPolicyTests: XCTestCase {
             firedThresholds: [25], enabledThresholds: allEnabled)
         XCTAssertEqual(d.fire, .quarter, "A real new window re-arms the quarter alert")
     }
+
+    // MARK: - Reset alerts
+
+    /// A fixed instant used as "now" so the tests are timezone/clock independent.
+    private let now = Date(timeIntervalSince1970: 1_800_000_000)
+
+    /// First observation after launch: even if the reported reset already lies in
+    /// the past (a reset happened while the app was closed), nothing fires — we
+    /// only announce resets the running app actually witnesses.
+    func testResetDoesNotFireOnFirstObservationOfPastReset() {
+        let past = now.addingTimeInterval(-3600)
+        let d = UsageAlertPolicy.decideReset(
+            now: now, resetDate: past, percentUsed: 100, prior: .init())
+        XCTAssertFalse(d.fireReset)
+        // A past reset date doesn't arm a pending window.
+        XCTAssertNil(d.state.pendingResetDate)
+    }
+
+    /// The core flow: observe a future reset while the window has some usage,
+    /// then the reset time passes → fire exactly once.
+    func testResetFiresOnceWhenUsedWindowRollsOver() {
+        let reset = now.addingTimeInterval(1800)
+
+        // Poll 1: window active in the future, some usage recorded.
+        var d = UsageAlertPolicy.decideReset(
+            now: now, resetDate: reset, percentUsed: 100, prior: .init())
+        XCTAssertFalse(d.fireReset)
+        XCTAssertEqual(d.state.pendingResetDate, reset)
+        XCTAssertTrue(d.state.didUse)
+
+        // Poll 2: the reset time has passed (CLI now reports the fresh window).
+        let after = reset.addingTimeInterval(60)
+        let fresh = reset.addingTimeInterval(5 * 3600)
+        d = UsageAlertPolicy.decideReset(
+            now: after, resetDate: fresh, percentUsed: 0, prior: d.state)
+        XCTAssertTrue(d.fireReset)
+        XCTAssertEqual(d.state.pendingResetDate, fresh)
+        XCTAssertFalse(d.state.didUse, "fresh window starts clean")
+    }
+
+    /// Any usage counts, not just full depletion: a window that only reached
+    /// 10% still announces when it resets.
+    func testResetFiresForPartiallyUsedWindow() {
+        let reset = now.addingTimeInterval(1800)
+        var d = UsageAlertPolicy.decideReset(
+            now: now, resetDate: reset, percentUsed: 10, prior: .init())
+        XCTAssertFalse(d.fireReset)
+        XCTAssertTrue(d.state.didUse)
+
+        let after = reset.addingTimeInterval(60)
+        let fresh = reset.addingTimeInterval(5 * 3600)
+        d = UsageAlertPolicy.decideReset(
+            now: after, resetDate: fresh, percentUsed: 0, prior: d.state)
+        XCTAssertTrue(d.fireReset, "a partially-used window still announces its reset")
+    }
+
+    /// A completely untouched window (0% used) rolls over silently.
+    func testResetDoesNotFireWhenWindowNeverUsed() {
+        let reset = now.addingTimeInterval(1800)
+        var d = UsageAlertPolicy.decideReset(
+            now: now, resetDate: reset, percentUsed: 0, prior: .init())
+        XCTAssertFalse(d.fireReset)
+
+        let after = reset.addingTimeInterval(60)
+        d = UsageAlertPolicy.decideReset(
+            now: after, resetDate: nil, percentUsed: 0, prior: d.state)
+        XCTAssertFalse(d.fireReset, "no announcement for a window that was never used")
+    }
+
+    /// Once a reset has fired, subsequent polls in the fresh window don't re-fire.
+    func testResetFiresOnlyOncePerRollover() {
+        let reset = now.addingTimeInterval(1800)
+        var state = UsageAlertPolicy.decideReset(
+            now: now, resetDate: reset, percentUsed: 100, prior: .init()).state
+
+        var fireCount = 0
+        // The rollover poll plus several steady polls afterward.
+        let fresh = reset.addingTimeInterval(5 * 3600)
+        var t = reset.addingTimeInterval(60)
+        for _ in 0..<5 {
+            let d = UsageAlertPolicy.decideReset(
+                now: t, resetDate: fresh, percentUsed: 10, prior: state)
+            if d.fireReset { fireCount += 1 }
+            state = d.state
+            t = t.addingTimeInterval(60)
+        }
+        XCTAssertEqual(fireCount, 1)
+    }
+
+    /// After a reset fires, if the fresh window is used again its own reset
+    /// fires once more — the alert re-arms each window.
+    func testResetReArmsForEachUsedWindow() {
+        // Window 1 used then rolls over → fire #1.
+        let reset1 = now.addingTimeInterval(1800)
+        var state = UsageAlertPolicy.decideReset(
+            now: now, resetDate: reset1, percentUsed: 100, prior: .init()).state
+
+        let reset2 = reset1.addingTimeInterval(5 * 3600)
+        var d = UsageAlertPolicy.decideReset(
+            now: reset1.addingTimeInterval(60), resetDate: reset2, percentUsed: 0, prior: state)
+        XCTAssertTrue(d.fireReset)
+        state = d.state
+
+        // Window 2 gets used too.
+        state = UsageAlertPolicy.decideReset(
+            now: reset1.addingTimeInterval(3600), resetDate: reset2, percentUsed: 100, prior: state).state
+
+        // Window 2 rolls over → fire #2.
+        let reset3 = reset2.addingTimeInterval(5 * 3600)
+        d = UsageAlertPolicy.decideReset(
+            now: reset2.addingTimeInterval(60), resetDate: reset3, percentUsed: 0, prior: state)
+        XCTAssertTrue(d.fireReset, "a second used window announces its own reset")
+    }
 }

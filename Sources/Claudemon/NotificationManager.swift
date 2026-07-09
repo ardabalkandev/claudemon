@@ -26,6 +26,10 @@ extension UsageAlertThreshold {
     var defaultsKey: String { "notify.threshold.\(rawValue)" }
 }
 
+/// Notification body for the "limit reset" alert. The metric name lives in the
+/// subtitle, so the body stays short and scannable.
+private let resetAlertBodyText = "Limit reset — your quota is available again."
+
 /// Owns the local-notification policy: decides when a tracked quota crosses a
 /// "remaining %" alert point and posts a single, de-duplicated banner.
 ///
@@ -43,6 +47,7 @@ final class NotificationManager: ObservableObject {
 
     static let masterDefaultsKey = "notify.enabled"
     static let firedStateDefaultsKey = "notify.firedState.v1"
+    static let resetDefaultsKey = "notify.reset.enabled"
 
     /// Master on/off switch for all usage alerts.
     @Published var isEnabled: Bool {
@@ -50,6 +55,15 @@ final class NotificationManager: ObservableObject {
             guard didLoad else { return }
             defaults.set(isEnabled, forKey: Self.masterDefaultsKey)
             if isEnabled { requestAuthorizationIfNeeded() }
+        }
+    }
+
+    /// Whether to announce when a tracked limit resets (only for windows that
+    /// had any usage). Defaults to on.
+    @Published var resetAlertsEnabled: Bool {
+        didSet {
+            guard didLoad else { return }
+            defaults.set(resetAlertsEnabled, forKey: Self.resetDefaultsKey)
         }
     }
 
@@ -74,9 +88,17 @@ final class NotificationManager: ObservableObject {
     }
     private var firedState: [String: FiredEntry]
 
+    /// Per-metric reset-alert state (keyed by `UsageMetric.Kind.rawValue`).
+    /// Intentionally in-memory only: it resets on launch so a reset that
+    /// happened while the app was closed can't fire a stale banner. See
+    /// `UsageAlertPolicy.ResetWindowState`.
+    private var resetState: [String: UsageAlertPolicy.ResetWindowState] = [:]
+
     init(defaults: UserDefaults = .standard) {
         self.defaults = defaults
         self.isEnabled = defaults.bool(forKey: Self.masterDefaultsKey)
+        // Absent key → default ON, so resets announce out of the box.
+        self.resetAlertsEnabled = defaults.object(forKey: Self.resetDefaultsKey) as? Bool ?? true
 
         var loaded: [Int: Bool] = [:]
         for threshold in Threshold.allCases {
@@ -140,6 +162,19 @@ final class NotificationManager: ObservableObject {
                 post(threshold: threshold, metric: metric)
             }
             firedState[key] = FiredEntry(signature: decision.signature, fired: decision.fired)
+
+            // Reset alerts: track every poll (so depletion is remembered even
+            // while the toggle is off), but only post when it's enabled.
+            let resetDecision = UsageAlertPolicy.decideReset(
+                now: report.capturedAt,
+                resetDate: metric.resetDate,
+                percentUsed: metric.percent,
+                prior: resetState[key] ?? .init()
+            )
+            resetState[key] = resetDecision.state
+            if resetAlertsEnabled, resetDecision.fireReset {
+                postReset(metric: metric)
+            }
         }
 
         persistFiredState()
@@ -162,6 +197,19 @@ final class NotificationManager: ObservableObject {
 
         // Unique id per fire so banners stack rather than coalesce.
         let id = "claudemon.\(metric.kind.rawValue).\(threshold.rawValue).\(UUID().uuidString)"
+        let request = UNNotificationRequest(identifier: id, content: content, trigger: nil)
+        center.add(request, withCompletionHandler: nil)
+    }
+
+    private func postReset(metric: UsageMetric) {
+        let content = UNMutableNotificationContent()
+        content.title = "Claudemon"
+        content.subtitle = metric.displayLabel
+        content.body = resetAlertBodyText
+        content.sound = .default
+
+        // Unique id per fire so banners stack rather than coalesce.
+        let id = "claudemon.reset.\(metric.kind.rawValue).\(UUID().uuidString)"
         let request = UNNotificationRequest(identifier: id, content: content, trigger: nil)
         center.add(request, withCompletionHandler: nil)
     }

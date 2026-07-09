@@ -93,4 +93,90 @@ public enum UsageAlertPolicy {
         let hourBucket = Int((resetDate.timeIntervalSince1970 / 3600).rounded())
         return "h\(hourBucket)"
     }
+
+    // MARK: - Reset alerts
+
+    /// Per-metric state for the "limit reset" alert. Tracked in memory per app
+    /// run (never persisted): a reset is only announced when the app itself
+    /// witnesses the window roll over while running, so a reset that happened
+    /// while the app was closed doesn't fire a stale banner on next launch.
+    public struct ResetWindowState: Equatable, Sendable {
+        /// The future reset date observed for the currently-active window, if we
+        /// have seen one this run. Nil until the first future reset is observed
+        /// (so the first poll after launch never counts as a reset).
+        public var pendingResetDate: Date?
+        /// Whether the metric was seen with any usage (percent > 0) during the
+        /// current window. The reset alert only fires if the window that just
+        /// rolled over had actually been used at all — a completely untouched
+        /// window (0% used) resets silently.
+        public var didUse: Bool
+
+        public init(pendingResetDate: Date? = nil, didUse: Bool = false) {
+            self.pendingResetDate = pendingResetDate
+            self.didUse = didUse
+        }
+    }
+
+    /// Outcome of evaluating one metric for the "limit reset" alert.
+    public struct ResetDecision: Equatable, Sendable {
+        /// True when a reset banner should be posted now.
+        public let fireReset: Bool
+        /// The updated state to persist back for the next evaluation.
+        public let state: ResetWindowState
+
+        public init(fireReset: Bool, state: ResetWindowState) {
+            self.fireReset = fireReset
+            self.state = state
+        }
+    }
+
+    /// Decide whether a metric's quota window has just reset (and, if so, whether
+    /// to announce it), advancing the per-metric reset state.
+    ///
+    /// The rule, applied in order each poll:
+    ///   1. **Detect a witnessed reset.** If we recorded a future reset date and
+    ///      `now` has passed it, the window rolled over. Fire iff the window that
+    ///      ended had any usage (`didUse`). Then clear the pending date and usage
+    ///      flag so the fresh window starts clean.
+    ///   2. **Track the active window.** If the metric reports a future reset
+    ///      date, record it as the pending window (this is also what arms the
+    ///      very first window after launch — arming, not firing).
+    ///   3. **Track usage.** If the metric has any usage (`percentUsed > 0`),
+    ///      remember it so the *next* reset of this window announces.
+    ///
+    /// - Parameters:
+    ///   - now: the current time (use the report's capture time).
+    ///   - resetDate: the metric's reported reset date, if any.
+    ///   - percentUsed: the metric's used percentage (0…100).
+    ///   - prior: the state from the previous evaluation (default for first run).
+    public static func decideReset(
+        now: Date,
+        resetDate: Date?,
+        percentUsed: Int,
+        prior: ResetWindowState
+    ) -> ResetDecision {
+        var state = prior
+        var fireReset = false
+
+        // 1. Witnessed reset: a previously-observed future reset has now passed.
+        if let pending = state.pendingResetDate, now >= pending {
+            if state.didUse {
+                fireReset = true
+            }
+            state.didUse = false
+            state.pendingResetDate = nil
+        }
+
+        // 2. Arm/refresh the active window from the latest future reset date.
+        if let resetDate, resetDate > now {
+            state.pendingResetDate = resetDate
+        }
+
+        // 3. Remember any usage within the current window.
+        if percentUsed > 0 {
+            state.didUse = true
+        }
+
+        return ResetDecision(fireReset: fireReset, state: state)
+    }
 }
