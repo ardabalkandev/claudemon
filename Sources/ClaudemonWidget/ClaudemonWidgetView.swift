@@ -13,7 +13,8 @@ struct ClaudemonWidgetView: View {
             case .systemSmall:
                 SmallUsageView(report: report, capturedAt: entry.capturedAt, isStale: entry.isStale)
             default:
-                MediumUsageView(report: report, capturedAt: entry.capturedAt, isStale: entry.isStale)
+                MediumUsageView(report: report, capturedAt: entry.capturedAt,
+                                isStale: entry.isStale, preciseBars: entry.preciseBars)
             }
         } else {
             EmptyUsageView()
@@ -111,6 +112,7 @@ struct MediumUsageView: View {
     let report: UsageReport
     let capturedAt: Date?
     let isStale: Bool
+    let preciseBars: Bool
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
@@ -145,7 +147,7 @@ struct MediumUsageView: View {
                     .font(.caption2.weight(.semibold).monospacedDigit())
                     .foregroundStyle(UsageColor.color(for: metric.percent))
             }
-            UsageBar(percent: metric.percent, height: 6)
+            UsageBar(percent: metric.percent, height: 6, precise: preciseBars)
         }
         .accessibilityElement(children: .ignore)
         .accessibilityLabel("\(metric.displayLabel), \(metric.percent) percent")
