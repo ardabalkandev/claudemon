@@ -67,6 +67,12 @@ The **⚙︎ gear** in the panel header reveals (and hides) the settings section
 login**, and **Usage alerts**. Settings stay collapsed by default so the
 everyday glance is uncluttered.
 
+**Usage alerts** post a macOS notification once per quota window when a
+tracked limit runs low (25% left, 5% left, and depleted), and once when a
+limit you actually used resets — so you know the moment your quota is
+available again. A window you never touched resets silently. Each alert
+point, including the reset announcement, can be toggled individually.
+
 **Precise bar fill** applies to every usage bar Claudemon draws — the menu-bar
 bar graph, the panel, the floating window, and the desktop widget. By default,
 bar fills are rounded and keep a small minimum size so low values still read as

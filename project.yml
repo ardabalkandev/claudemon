@@ -18,8 +18,8 @@ options:
 
 settings:
   base:
-    MARKETING_VERSION: "1.4.5"
-    CURRENT_PROJECT_VERSION: "14"
+    MARKETING_VERSION: "1.4.6"
+    CURRENT_PROJECT_VERSION: "15"
     SWIFT_VERSION: "5.0"
     # Developer ID signing is applied EXPLICITLY, inside-out, by
     # scripts/release-dmg.sh (framework -> appex -> app), each with
