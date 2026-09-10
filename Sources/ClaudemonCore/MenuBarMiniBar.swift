@@ -21,6 +21,27 @@ public enum MenuBarDisplayMode: String, CaseIterable, Identifiable {
     }
 }
 
+/// Which weekly limit the menu-bar bar graph's second bar tracks. Persisted
+/// by `UsageStore` as a raw string. The per-model case's user-facing label is
+/// the model name Anthropic currently reports (see `UsageMetric.modelName`),
+/// so it is not hardcoded here.
+public enum MenuBarWeekBarSource: String, CaseIterable, Identifiable {
+    /// Current Week (all models).
+    case allModels
+    /// The per-model current-week limit (e.g. Current Week (Fable)).
+    case perModel
+
+    public var id: String { rawValue }
+
+    /// Picks the matching weekly metric out of a report.
+    public var metricKind: UsageMetric.Kind {
+        switch self {
+        case .allModels: return .weekAll
+        case .perModel: return .weekModel
+        }
+    }
+}
+
 /// Fixed-size bar-graph content for the menu-bar label: the session limit as a
 /// bar, optionally the weekly (all models) limit as a second bar, and
 /// optionally the percent value(s) beside the bars. Bars use the shared

@@ -78,6 +78,13 @@ final class UsageStore: ObservableObject {
         }
     }
 
+    /// Which weekly limit the second bar tracks (all models vs. per model).
+    @Published var menuBarWeekBarSource: MenuBarWeekBarSource {
+        didSet {
+            UserDefaults.standard.set(menuBarWeekBarSource.rawValue, forKey: Self.menuBarWeekBarSourceKey)
+        }
+    }
+
     /// Show the percent value(s) beside the bar(s).
     @Published var menuBarShowsPercent: Bool {
         didSet {
@@ -115,6 +122,7 @@ final class UsageStore: ObservableObject {
     static let floatingCompactKey = "floatingWidgetCompact"
     static let menuBarDisplayModeKey = "menuBarDisplayMode"
     static let menuBarShowsWeekBarKey = "menuBarShowsWeekBar"
+    static let menuBarWeekBarSourceKey = "menuBarWeekBarSource"
     static let menuBarShowsPercentKey = "menuBarShowsPercent"
     static let menuBarBarsVerticalKey = "menuBarBarsVertical"
     static let menuBarBarsHalfWidthKey = "menuBarBarsHalfWidth"
@@ -168,6 +176,8 @@ final class UsageStore: ObservableObject {
         self.menuBarDisplayMode = storedMode.flatMap(MenuBarDisplayMode.init(rawValue:)) ?? .iconAndText
         let defaults = UserDefaults.standard
         self.menuBarShowsWeekBar = defaults.bool(forKey: Self.menuBarShowsWeekBarKey)
+        let storedSource = defaults.string(forKey: Self.menuBarWeekBarSourceKey)
+        self.menuBarWeekBarSource = storedSource.flatMap(MenuBarWeekBarSource.init(rawValue:)) ?? .allModels
         // Percentages default ON (absent key reads nil, not false).
         self.menuBarShowsPercent = (defaults.object(forKey: Self.menuBarShowsPercentKey) as? Bool) ?? true
         self.menuBarBarsVertical = defaults.bool(forKey: Self.menuBarBarsVerticalKey)
@@ -464,8 +474,16 @@ final class UsageStore: ObservableObject {
         lastGoodReport?.session?.percent
     }
 
-    /// Weekly (all models) percent for the menu-bar bar-graph label, if available.
-    var weekAllPercent: Int? {
-        lastGoodReport?.weekAll?.percent
+    /// The weekly metric the menu-bar bar graph's second bar tracks, per the
+    /// user's `menuBarWeekBarSource` choice, if available.
+    var menuBarWeekMetric: UsageMetric? {
+        lastGoodReport?.metric(menuBarWeekBarSource.metricKind)
+    }
+
+    /// Settings label for the per-model weekly source: the model name Anthropic
+    /// currently reports there ("Fable"), or a generic fallback before the
+    /// first report lands.
+    var weekModelName: String {
+        lastGoodReport?.weekModel?.modelName ?? UsageMetric.Kind.weekModel.shortName
     }
 }
