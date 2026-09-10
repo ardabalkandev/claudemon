@@ -101,7 +101,7 @@ struct MenuBarLabel: View {
     private func barsImage(sessionPercent: Int) -> NSImage? {
         let config = MenuBarBarsView.Configuration(
             sessionPercent: sessionPercent,
-            weekPercent: store.menuBarShowsWeekBar ? store.weekAllPercent : nil,
+            weekPercent: store.menuBarShowsWeekBar ? store.menuBarWeekMetric?.percent : nil,
             showsPercent: store.menuBarShowsPercent,
             isVertical: store.menuBarBarsVertical,
             preciseFill: store.preciseBars,
@@ -138,8 +138,9 @@ struct MenuBarLabel: View {
     private var accessibilityLabel: String {
         if let p = store.sessionPercent {
             if store.menuBarDisplayMode == .bars, store.menuBarShowsWeekBar,
-               let week = store.weekAllPercent {
-                return "Claudemon, session \(p) percent, week \(week) percent used"
+               let week = store.menuBarWeekMetric {
+                let name = week.kind == .weekModel ? "\(week.modelName) week" : "week"
+                return "Claudemon, session \(p) percent, \(name) \(week.percent) percent used"
             }
             return "Claudemon, session \(p) percent used"
         }
@@ -157,6 +158,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCent
     private let notifications = ClaudemonAppState.shared.notifications
     private let updateChecker = ClaudemonAppState.shared.updateChecker
     private var floatingController: FloatingPanelController?
+    private var statusItemClickMonitor: Any?
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         // Pure menu-bar agent: no Dock icon, no app menu.
@@ -185,6 +187,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCent
         if store.floatingEnabled {
             controller.setVisible(true)
         }
+
+        installStatusItemContextMenu()
 
         // Pause/resume polling around system sleep to save resources.
         let center = NSWorkspace.shared.notificationCenter
@@ -234,6 +238,50 @@ final class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCent
         completionHandler([.banner, .list, .sound])
     }
 
+    // MARK: - Status item context menu
+
+    /// `MenuBarExtra` has no right-click support, so intercept right-clicks
+    /// (and control-clicks) on the status item's window and pop up a small
+    /// Refresh / Quit menu instead of the panel. Works for every display mode
+    /// since the check is on the window, not the label content.
+    private func installStatusItemContextMenu() {
+        statusItemClickMonitor = NSEvent.addLocalMonitorForEvents(
+            matching: [.rightMouseDown, .leftMouseDown]
+        ) { [weak self] event in
+            guard let self,
+                  let window = event.window,
+                  window.className == "NSStatusBarWindow",
+                  let view = window.contentView,
+                  event.type == .rightMouseDown || event.modifierFlags.contains(.control)
+            else { return event }
+            self.contextMenu.popUp(positioning: nil, at: NSPoint(x: 0, y: 0), in: view)
+            return nil // swallow so the panel doesn't toggle underneath
+        }
+    }
+
+    private var contextMenu: NSMenu {
+        let menu = NSMenu()
+        let refresh = NSMenuItem(title: "Refresh", action: #selector(refreshFromMenu),
+                                 keyEquivalent: "r")
+        refresh.target = self
+        refresh.isEnabled = !store.isRefreshing
+        menu.addItem(refresh)
+        menu.addItem(.separator())
+        let quit = NSMenuItem(title: "Quit Claudemon", action: #selector(quitFromMenu),
+                              keyEquivalent: "q")
+        quit.target = self
+        menu.addItem(quit)
+        return menu
+    }
+
+    @objc private func refreshFromMenu() {
+        store.refresh()
+    }
+
+    @objc private func quitFromMenu() {
+        NSApplication.shared.terminate(nil)
+    }
+
     @objc private func systemWillSleep() {
         store.stop()
     }
@@ -244,6 +292,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCent
 
     func applicationWillTerminate(_ notification: Notification) {
         store.stop()
+        if let statusItemClickMonitor {
+            NSEvent.removeMonitor(statusItemClickMonitor)
+        }
         NSWorkspace.shared.notificationCenter.removeObserver(self)
     }
 }

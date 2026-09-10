@@ -42,6 +42,20 @@ final class MenuBarMiniBarTests: XCTestCase {
         )
     }
 
+    // MARK: - MenuBarWeekBarSource
+
+    func testWeekBarSourceRawValueRoundTripsAndMapsToMetricKind() {
+        for source in MenuBarWeekBarSource.allCases {
+            XCTAssertEqual(MenuBarWeekBarSource(rawValue: source.rawValue), source)
+            XCTAssertEqual(source.id, source.rawValue)
+        }
+        XCTAssertNil(MenuBarWeekBarSource(rawValue: "sonnet"))
+        XCTAssertEqual(MenuBarWeekBarSource.allModels.metricKind, .weekAll)
+        XCTAssertEqual(MenuBarWeekBarSource.perModel.metricKind, .weekModel)
+        XCTAssertEqual(MenuBarWeekBarSource.allCases, [.allModels, .perModel],
+                       "Order is user-facing (drives the settings Picker)")
+    }
+
     // MARK: - MenuBarBarsView.Configuration
 
     func testBarsConfigurationEquatableCoversAllFields() {

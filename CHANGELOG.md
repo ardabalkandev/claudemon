@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file.
 
+## [Unreleased]
+
+### Added
+
+- Bar graph style: the **Weekly bar** now has a source picker, so the second
+  bar can track either **Current Week (all models)** or the per-model weekly
+  limit (shown under its current model name, e.g. Fable). Defaults to all
+  models, so existing setups look the same.
+- Right-click (or control-click) the menu bar item, in any style, for a
+  Refresh / Quit context menu without opening the panel.
+
 ## [1.4.6] - 2026-07-09
 
 ### Added

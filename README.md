@@ -48,8 +48,10 @@ settings, then pick a **Menu bar style**:
 
 Choosing **Bar graph** reveals three extra options under the style picker:
 
-- **Weekly bar** — adds a second bar for **Current Week (all models)** under
-  (or, in vertical mode, next to) the session bar.
+- **Weekly bar** — adds a second bar for a weekly limit under (or, in vertical
+  mode, next to) the session bar. A picker beside the checkbox chooses which
+  weekly limit it tracks: **All models** (the default) or the per-model limit,
+  listed under its current model name (e.g. **Fable**).
 - **Percentages** — shows the percent value(s) beside the bars; with two bars
   they stack vertically in a smaller font, in the same order as the bars
   (session first).
@@ -62,6 +64,8 @@ Choosing **Bar graph** reveals three extra options under the style picker:
 Your choices are remembered across launches.
 
 The panel itself opens **clean** — usage data plus **Refresh** / **Quit** only.
+**Right-click** (or control-click) the menu bar item in any style for a quick
+**Refresh** / **Quit** menu without opening the panel.
 The **⚙︎ gear** in the panel header reveals (and hides) the settings section:
 **Menu bar style**, **Floating widget**, **Precise bar fill**, **Launch at
 login**, and **Usage alerts**. Settings stay collapsed by default so the

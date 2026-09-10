@@ -264,7 +264,21 @@ struct MenuPanelView: View {
 
             if store.menuBarDisplayMode == .bars {
                 VStack(alignment: .leading, spacing: 4) {
-                    barsOptionToggle("Weekly bar", isOn: $store.menuBarShowsWeekBar)
+                    HStack(spacing: 6) {
+                        barsOptionToggle("Weekly bar", isOn: $store.menuBarShowsWeekBar)
+                        if store.menuBarShowsWeekBar {
+                            Picker("Weekly bar source", selection: $store.menuBarWeekBarSource) {
+                                Text("All models").tag(MenuBarWeekBarSource.allModels)
+                                Text(store.weekModelName).tag(MenuBarWeekBarSource.perModel)
+                            }
+                            .labelsHidden()
+                            .pickerStyle(.menu)
+                            .controlSize(.mini)
+                            .fixedSize()
+                            .accessibilityLabel("Weekly bar source")
+                            .help("Which weekly limit the second bar tracks")
+                        }
+                    }
                     barsOptionToggle("Percentages", isOn: $store.menuBarShowsPercent)
                     barsOptionToggle("Vertical bars", isOn: $store.menuBarBarsVertical)
                     if !store.menuBarBarsVertical {
