@@ -46,7 +46,7 @@ settings, then pick a **Menu bar style**:
 | **Icon only** | just the gauge icon | Tightest footprint |
 | **Bar graph** | a fixed-width session usage bar | Colored green/yellow/red like the in-app bars; options below |
 
-Choosing **Bar graph** reveals three extra options under the style picker:
+Choosing **Bar graph** reveals four extra options under the style picker:
 
 - **Weekly bar** — adds a second bar for a weekly limit under (or, in vertical
   mode, next to) the session bar. A picker beside the checkbox chooses which
@@ -256,7 +256,7 @@ entitlements.
 
 ```bash
 swift build   # debug build of ClaudemonCore + the app
-swift test    # runs the unit test suite (currently 87 tests)
+swift test    # runs the unit test suite (currently 100 tests)
 ```
 
 ### XcodeGen (optional regeneration fallback)
